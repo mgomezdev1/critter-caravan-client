@@ -1,3 +1,4 @@
 [submodule "Assets/Dependencies"]
 	path = Assets/Dependencies
 	url = https://github.com/mgomezdev1/critter-caravan-asset-deps.git
+	branch = main
