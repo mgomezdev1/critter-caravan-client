@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+#nullable enable
 [UxmlElement]
 public abstract partial class DataField : VisualElement
 {
@@ -34,12 +35,6 @@ public abstract partial class DataField : VisualElement
         get { return InputField.value; }
         set { InputField.value = value; }
     }
-    [UxmlAttribute]
-    public string Placeholder
-    {
-        get { return InputField.textEdition.placeholder; }
-        set { InputField.textEdition.placeholder = value; }
-    }
 
     [UxmlAttribute]
     public bool HideInput
@@ -50,6 +45,8 @@ public abstract partial class DataField : VisualElement
 
     protected VisualElement FieldRow { get; set; }
     public override VisualElement contentContainer => FieldRow;
+
+    public event Action? OnSubmit;
 
     public DataField()
     {
@@ -72,19 +69,34 @@ public abstract partial class DataField : VisualElement
         errorLabel.style.display = DisplayStyle.None;
 
         // Attaching children to own component tree
-        this.hierarchy.Add(label);
         this.hierarchy.Add(FieldRow);
         this.hierarchy.Add(errorLabel);
 
+        // Label is absolutely positioned and shouldn't block raycasting
+        label.pickingMode = PickingMode.Ignore;
+        this.hierarchy.Add(label);
+
         InputField.RegisterValueChangedCallback(HandleChangeEvent);
+        InputField.RegisterCallback<KeyDownEvent>(HandleKeyDownEvent, TrickleDown.TrickleDown);
         SetValidState(true);
+        SetEmptyState(true);
+    }
+
+    private void HandleKeyDownEvent(KeyDownEvent evt)
+    {
+        if (evt.keyCode == KeyCode.Return && !evt.shiftKey)
+        {
+            OnSubmit?.Invoke();
+        }
     }
 
     protected void HandleChangeEvent(ChangeEvent<string> evt)
     {
-        UpdateValue(evt.newValue);
+        string rawValue = evt.newValue;
+        SetEmptyState(string.IsNullOrEmpty(rawValue));
+        HandleRawValue(rawValue);
     }
-    protected abstract void UpdateValue(string rawValue);
+    protected abstract void HandleRawValue(string rawValue);
 
     protected void UpdateValidState()
     {
@@ -94,6 +106,10 @@ public abstract partial class DataField : VisualElement
     {
         errorLabel.style.display = valid ? DisplayStyle.None : DisplayStyle.Flex;
         this.EnableInClassList("invalid", !valid);
+    }
+    protected void SetEmptyState(bool empty)
+    {
+        this.EnableInClassList("empty-field", empty);
     }
 }
 
@@ -117,7 +133,7 @@ public partial class GenericField<T> : DataField
 
     public virtual event Action<T>? OnSuccessfulEdit;
 
-    protected override void UpdateValue(string rawValue)
+    protected override void HandleRawValue(string rawValue)
     {
         if (validator == null)
         {

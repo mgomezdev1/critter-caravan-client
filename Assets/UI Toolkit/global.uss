@@ -9,6 +9,7 @@
 
 #root {
     font-size: 28px;
+    -unity-font-definition: url("project://database/Assets/TextMesh%20Pro/Examples%20&%20Extras/Fonts/Unity.ttf?fileID=12800000&guid=f4eec857a4fdf2f43be0e9f3d1a984e7&type=3#Unity");
 }
 
 .row-center {
@@ -18,18 +19,60 @@
 }
 
 Button {
+    border-left-color: rgb(77, 77, 77);
+    border-right-color: rgb(77, 77, 77);
+    border-top-color: rgb(77, 77, 77);
+    border-bottom-color: rgb(77, 77, 77);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+    border-top-width: 1px;
+    border-left-width: 1px;
+    transition-duration: 0.15s;
 }
 
 Button:hover {
     scale: 1.1 1.1;
-    transition-duration: 0.2s;
-    -unity-background-image-tint-color: rgb(155, 255, 183);
 }
 
 Button:active {
     scale: 1.05 1.05;
-    -unity-background-image-tint-color: rgb(129, 202, 133);
-    transition-duration: 0.1s;
+}
+
+Button.rounded {
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border-bottom-right-radius: 24px;
+    border-bottom-left-radius: 24px;
+    border-bottom-width: 0;
+    border-right-width: 0;
+    border-left-width: 0;
+    border-top-width: 0;
+}
+
+Button.lifted {
+    border-bottom-width: 5px;
+    border-top-width: 1px;
+}
+
+Button.lifted:active {
+    border-bottom-width: 1px;
+    margin-top: 6px;
+}
+
+TextField > * {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    overflow: visible;
 }
 
 .minibutton {
@@ -48,13 +91,28 @@ Button:active {
 }
 
 .field-label {
-    font-size: 24px;
-    margin-left: 18px;
+    font-size: 16px;
+    margin-left: 4px;
     margin-bottom: 0;
-    padding-top: 0;
-    padding-right: 0;
     padding-bottom: 0;
     padding-left: 0;
+    position: absolute;
+    transition-duration: 0.4s;
+    padding-top: 0;
+    padding-right: 0;
+    margin-top: -2px;
+}
+
+.empty-field .field-label {
+    font-size: 20px;
+    margin-left: 5px;
+    margin-bottom: 0;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    margin-top: 16px;
+    color: rgb(113, 113, 113);
 }
 
 .field-error {
@@ -72,10 +130,12 @@ Button:active {
 
 .field-row {
     flex-direction: row;
+    margin-top: 18px;
 }
 
 .field-input {
     flex-grow: 1;
+    height: 40px;
 }
 
 .invalid .field-input {
@@ -107,13 +167,6 @@ Button:active {
 }
 
 .exit-button {
-    -unity-background-image-tint-color: rgb(255, 189, 189);
-    background-image: url("project://database/Assets/TextMesh%20Pro/Examples%20&%20Extras/Textures/Floor%20Tiles%201%20-%20diffuse.jpg?fileID=2800000&guid=85ac55597b97403c82fc6601a93cf241&type=3#Floor Tiles 1 - diffuse");
-    -unity-slice-left: 10;
-    -unity-slice-top: 10;
-    -unity-slice-right: 10;
-    -unity-slice-bottom: 10;
-    -unity-slice-scale: 0.5px;
 }
 
 .panel {
@@ -121,8 +174,20 @@ Button:active {
     padding-right: 10px;
     padding-bottom: 10px;
     padding-left: 10px;
-    background-color: rgb(135, 135, 135);
-    background-image: url("project://database/Assets/TextMesh%20Pro/Examples%20&%20Extras/Textures/Floor%20Cement.jpg?fileID=2800000&guid=283f897e4925411ebbaa758b4cb13fc2&type=3#Floor Cement");
+    -unity-slice-scale: 1px;
+    background-color: rgb(214, 214, 214);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+    border-left-color: rgb(119, 119, 119);
+    border-right-color: rgb(119, 119, 119);
+    border-top-color: rgb(119, 119, 119);
+    border-bottom-color: rgb(119, 119, 119);
 }
 
 .abs-center {
@@ -155,4 +220,21 @@ Button:active {
     margin-bottom: 16px;
     margin-left: 16px;
     margin-right: 16px;
+}
+
+.confirmation-panel {
+    font-size: 32px;
+    padding-top: 12px;
+    padding-right: 12px;
+    padding-bottom: 12px;
+    padding-left: 12px;
+    max-width: 550px;
+}
+
+.cancel-button {
+}
+
+.confirm-button {
+    background-color: rgb(117, 255, 154);
+    margin-left: 48px;
 }

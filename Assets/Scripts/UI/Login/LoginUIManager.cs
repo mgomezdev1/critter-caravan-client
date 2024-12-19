@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -15,6 +16,9 @@ public class LoginUIManager : BaseUIManager
     StringField PasswordField { get; set; }
     Label GlobalErrorLabel { get; set; }
 
+    private Button loginButton;
+    private Button guestButton;
+
     [SerializeField] bool autoCheckInGuests = false;
 
     void Awake()
@@ -24,7 +28,9 @@ public class LoginUIManager : BaseUIManager
         UsernameField = Q<StringField>("UsernameField");
         PasswordField = Q<StringField>("PasswordField");
         GlobalErrorLabel = Q<Label>("GlobalErrorLabel");
-        GlobalErrorLabel.style.display = DisplayStyle.None;
+
+        UsernameField.OnSubmit += HandleLogin;
+        PasswordField.OnSubmit += HandleLogin;
 
         foreach (var label in Query<Label>())
         {
@@ -32,11 +38,13 @@ public class LoginUIManager : BaseUIManager
             label.text = FillInFormatText(label.text);
         }
 
-        Button loginButton = Q<Button>("LoginButton");
+        loginButton = Q<Button>("LoginButton");
         loginButton.clicked += HandleLogin;
 
-        Button guestButton = Q<Button>("GuestButton");
+        guestButton = Q<Button>("GuestButton");
         guestButton.clicked += HandleGuestSignIn;
+        
+        SetErrorMessage(null);
     }
 
     private async void Start()
@@ -50,8 +58,7 @@ public class LoginUIManager : BaseUIManager
         {
             if (!session.TokenExpiration.HasValue || session.TokenExpiration.Value < DateTime.Now + TimeSpan.FromSeconds(ServerAPI.TIMEOUT))
             {
-                GlobalErrorLabel.text = $"Your login information expired. Please log in again.";
-                GlobalErrorLabel.style.display = DisplayStyle.Flex;
+                SetErrorMessage($"Your login information expired. Please log in again.");
             }
             else
             {
@@ -68,14 +75,21 @@ public class LoginUIManager : BaseUIManager
         }
     }
 
+    private bool loginInProgress = false;
     private async void HandleLogin()
     {
+        if (loginInProgress) return;
+        
+        // gather credentials and hide global error.
         UserLogin login = new(UsernameField.Value ?? string.Empty, PasswordField.Value ?? string.Empty);
+        SetErrorMessage(null);
 
         try
         {
+            SetLoginState(true);
             await SessionManager.Login(login);
 
+            loginButton.text = "Loading...";
             await LoadLevelsScene();
         }
         catch (ServerAPIException e)
@@ -96,36 +110,64 @@ public class LoginUIManager : BaseUIManager
             }
             else
             {
-                GlobalErrorLabel.visible = true;
-                GlobalErrorLabel.text = e.Message;
+                SetErrorMessage(e.Message);
             }
         }
         catch (Exception e) {
-            Debug.LogError($"Unhandled exception when attempting to log in: {e}");
-            return;
+            SetErrorMessage($"Something went wrong internally when logging you in. If this error persists, contact support.\n Error: {e.Message}");
+            Debug.LogException(e); 
         }
+        finally
+        {
+            SetLoginState(false);
+        }
+    }
+
+    private void SetLoginState(bool inProgress)
+    {
+        loginInProgress = inProgress;
+        loginButton.SetEnabled(!inProgress);
+        guestButton.SetEnabled(!inProgress);
+
+        loginButton.text = inProgress ? "Signing in..." : "Sign in";
     }
 
     private async void HandleGuestSignIn()
     {
+        if (loginInProgress)
+        {
+            SetErrorMessage("You can't sign in as guest while another sign in operation is in progress.");
+            return;
+        }
         await SessionManager.SetGuestSession(User.GuestUser);
+        guestButton.text = "Loading...";
         await LoadLevelsScene();
+    }
+
+    public void SetErrorMessage(string? message)
+    {
+        if (!string.IsNullOrEmpty(message))
+        {
+            GlobalErrorLabel.style.display = DisplayStyle.Flex;
+            GlobalErrorLabel.text = message;
+        } 
+        else
+        {
+            GlobalErrorLabel.style.display = DisplayStyle.None;
+        }
     }
 
     private async Task LoadLevelsScene()
     {
-        Scene target = SceneManager.GetSceneByBuildIndex(1);
-        List<Task> tasks = new() { 
-            
-        };
-        if (!target.isLoaded)
-        {
-            tasks.Add(SceneManager.LoadSceneAsync(target.buildIndex, LoadSceneMode.Single).ToTask());
-        }
-        await Task.WhenAll(tasks);
-        if (!SceneManager.SetActiveScene(target))
-        {
-            throw new Exception($"Unable to set active scene to target. Did loading fail?");
-        }
+        Task<Scene> sceneLoadTask = AsyncUtils.LoadSceneAsync(1);
+        Task levelLoadTask = SessionManager.GetSession().LoadLevelStats(SessionManager.CurrentUser?.Id);
+
+        loginButton.SetEnabled(false);
+        guestButton.SetEnabled(false);
+
+        await Task.WhenAll(sceneLoadTask, levelLoadTask);
+
+        Scene targetScene = sceneLoadTask.Result;
+        SceneManager.SetActiveScene(targetScene);
     }
 }

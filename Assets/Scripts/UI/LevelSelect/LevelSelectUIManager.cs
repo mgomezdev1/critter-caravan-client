@@ -15,9 +15,8 @@ public class LevelSelectUIManager : BaseUIManager
 
     private void Awake()
     {
-        _document = GetComponent<UIDocument>();
-
         Button logOutButton = Q<Button>("LogOutButton");
+        if (!SessionManager.LoggedIn) logOutButton.text = "Log In";
         logOutButton.clicked += HandleLogOut;
 
         Button playButton = Q<Button>("PlayButton");
@@ -42,21 +41,18 @@ public class LevelSelectUIManager : BaseUIManager
 
     private async void HandleLogOut()
     {
-        Scene loginScene = SceneManager.GetSceneByBuildIndex(0);
+        if (SessionManager.LoggedIn && !await AskConfirmation("Are you sure you want to log out?")) return;
 
-        List<Task> tasks = new()
-        {
-            SessionManager.LogOut()
-        };
-        if (!loginScene.isLoaded)
-        {
-            tasks.Add(SceneManager.LoadSceneAsync(loginScene.buildIndex, LoadSceneMode.Single).ToTask());
-        }
-        await Task.WhenAll(tasks);
-        SceneManager.SetActiveScene(loginScene);
+        Task<Scene> sceneLoadTask = AsyncUtils.LoadSceneAsync(0);
+        Task logOutTask = SessionManager.LogOut();
+
+        await Task.WhenAll(sceneLoadTask, logOutTask);
+        SceneManager.SetActiveScene(sceneLoadTask.Result);
     }
-    private void HandleQuit()
+    private async void HandleQuit()
     {
+        if (!await AskConfirmation("Are you sure you want to quit?")) return;
+
         Application.Quit();
     }
 
