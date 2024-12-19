@@ -9,9 +9,9 @@ using Extensions;
 #nullable enable
 public class SessionManager : PersistentSingletonBehaviour<SessionManager>
 {
-    public static bool LoggedIn => CurrentUser != null;
-    public static bool IsGuest => LoggedIn && AuthToken == null;
-    public static bool IsOnline => LoggedIn && AuthToken != null;
+    public static bool HasUser => CurrentUser != null;
+    public static bool IsGuest => HasUser && AuthToken == null;
+    public static bool LoggedIn => HasUser && AuthToken != null;
     public static User? CurrentUser { get; set; }
     public static string? AuthToken {
         get

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using UnityEditor.PackageManager.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -199,5 +200,42 @@ public class BaseUIManager : MonoBehaviour
     public static string FillInFormatText(string text)
     {
         return text.Replace("%BASE_URL%", Networking.ServerAPI.BASE_URL);
+    }
+
+    public Task<bool> AskConfirmation(string content = "Are you sure?", string cancelButtonText = "Cancel", string okButtonText = "Yes")
+    {
+        var taskCompletionSource = new TaskCompletionSource<bool>();
+        
+        VisualElement panel = new();
+        panel.AddToClassList("abs-center");
+        panel.AddToClassList("panel");
+        panel.AddToClassList("confirmation-panel");
+
+        Label label = new() { text = content };
+        panel.Add(label);
+
+        VisualElement buttonHolder = new();
+        buttonHolder.AddToClassList("row-center");
+        Button cancelButton = new() { text = cancelButtonText };
+        cancelButton.AddToClassList("cancel-button");
+        Button okButton = new() { text = okButtonText };
+        okButton.AddToClassList("confirm-button");
+
+        void Resolve(bool result)
+        {
+            taskCompletionSource.SetResult(result);
+            Root.Remove(panel);
+        }
+
+        cancelButton.clicked += () => Resolve(false);
+        okButton.clicked     += () => Resolve(true);
+
+        buttonHolder.Add(cancelButton);
+        buttonHolder.Add(okButton);
+        panel.Add(buttonHolder);
+
+        Root.Add(panel);
+
+        return taskCompletionSource.Task;
     }
 }

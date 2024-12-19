@@ -27,7 +27,7 @@ public class LocalLevelStats
 
     public async Task<bool> TryDownloadServerCompletions()
     {
-        if (!SessionManager.IsOnline) { return false; }
+        if (!SessionManager.LoggedIn) { return false; }
 
         try
         {
@@ -53,7 +53,7 @@ public class LocalLevelStats
     }
     public async Task<bool> TryUploadLocalCompletions()
     {
-        if (!SessionManager.IsOnline) { return false; }
+        if (!SessionManager.LoggedIn) { return false; }
 
         try
         {
@@ -106,7 +106,7 @@ public class LocalLevelStats
     {
         LevelCompletionResult result = UpdateCache(levelCompletionResult);
 
-        if (SessionManager.IsOnline)
+        if (SessionManager.LoggedIn)
         {
             try
             {
