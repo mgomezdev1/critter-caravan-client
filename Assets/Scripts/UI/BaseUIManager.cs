@@ -205,7 +205,10 @@ public class BaseUIManager : MonoBehaviour
     public Task<bool> AskConfirmation(string content = "Are you sure?", string cancelButtonText = "Cancel", string okButtonText = "Yes")
     {
         var taskCompletionSource = new TaskCompletionSource<bool>();
-        
+
+        VisualElement modalBackground = new();
+        modalBackground.AddToClassList("full-cover");
+
         VisualElement panel = new();
         panel.AddToClassList("abs-center");
         panel.AddToClassList("panel");
@@ -234,7 +237,9 @@ public class BaseUIManager : MonoBehaviour
         buttonHolder.Add(okButton);
         panel.Add(buttonHolder);
 
-        Root.Add(panel);
+        modalBackground.Add(panel);
+
+        Root.Add(modalBackground);
 
         return taskCompletionSource.Task;
     }

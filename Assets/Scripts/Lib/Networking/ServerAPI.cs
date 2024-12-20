@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 #nullable enable
 namespace Networking
@@ -16,11 +17,11 @@ namespace Networking
         public static string BASE_URL_API => Environment.GetEnvironmentVariable("BASE_URL_API") ?? "https://127.0.0.1:4000/api/";
         public static int TIMEOUT { get; set; } = 5;
 
-        public static async Task<string?> TryPostAsync(string endpoint, string jsonPayload)
+        public static async Task<string?> TryPostAsync(string endpoint, string jsonPayload, CancellationToken cancellationToken = default)
         {
             try
             {
-                return await PostAsync(endpoint, jsonPayload);
+                return await PostAsync(endpoint, jsonPayload, cancellationToken);
             }
             catch
             {
@@ -28,12 +29,14 @@ namespace Networking
             }
         }
 
-        public static async Task<string> PostAsync(string endpoint, string jsonPayload)
+        public static async Task<string> PostAsync(string endpoint, string jsonPayload, CancellationToken cancellationToken = default)
         {
             using UnityWebRequest request = UnityWebRequest.Post(BASE_URL_API + endpoint, jsonPayload, "application/json");
             await PreprocessRequest(request);
 
+            cancellationToken.Register(() => request.Abort());
             await request.SendWebRequest();
+            cancellationToken.ThrowIfCancellationRequested();
 
             if (request.result == UnityWebRequest.Result.Success)
             {
@@ -46,11 +49,11 @@ namespace Networking
             }
         }
 
-        public static async Task<string?> TryGetAsync(string endpoint)
+        public static async Task<string?> TryGetAsync(string endpoint, CancellationToken cancellationToken = default)
         {
             try
             {
-                return await GetAsync(endpoint);
+                return await GetAsync(endpoint, cancellationToken);
             }
             catch
             {
@@ -58,12 +61,14 @@ namespace Networking
             }
         }
 
-        public static async Task<string> GetAsync(string endpoint)
+        public static async Task<string> GetAsync(string endpoint, CancellationToken cancellationToken = default)
         {
             using UnityWebRequest request = UnityWebRequest.Get(BASE_URL_API + endpoint);
             await PreprocessRequest(request);
 
+            cancellationToken.Register(() => request.Abort());
             await request.SendWebRequest();
+            cancellationToken.ThrowIfCancellationRequested();
 
             if (request.result == UnityWebRequest.Result.Success)
             {
@@ -76,23 +81,25 @@ namespace Networking
             }
         }
 
-        public static async Task<string?> TryDeleteAsync(string endpoint)
+        public static async Task<string?> TryDeleteAsync(string endpoint, CancellationToken cancellationToken = default)
         {
             try
             {
-                return await DeleteAsync(endpoint);
+                return await DeleteAsync(endpoint, cancellationToken);
             }
             catch
             {
                 return null;
             }
         }
-        public static async Task<string> DeleteAsync(string endpoint)
+        public static async Task<string> DeleteAsync(string endpoint, CancellationToken cancellationToken = default)
         {
             using UnityWebRequest request = UnityWebRequest.Delete(BASE_URL_API + endpoint);
-            await PreprocessRequest(request);
+            await PreprocessRequest(request, cancellationToken);
 
+            cancellationToken.Register(() => request.Abort());
             await request.SendWebRequest();
+            cancellationToken.ThrowIfCancellationRequested();
 
             if (request.result == UnityWebRequest.Result.Success)
             {
@@ -105,36 +112,36 @@ namespace Networking
             }
         }
 
-        public static async Task<T> GetAsync<T>(string endpoint)
+        public static async Task<T> GetAsync<T>(string endpoint, CancellationToken cancellationToken = default)
         {
-            string response = await GetAsync(endpoint);
+            string response = await GetAsync(endpoint, cancellationToken);
             return JsonConvert.DeserializeObject<T>(response)
                 ?? throw new ServerAPIInvalidFormatException<T>(HttpVerb.Get, endpoint, response);
         }
-        public static async Task<T> PostAsync<T>(string endpoint, string jsonPayload)
+        public static async Task<T> PostAsync<T>(string endpoint, string jsonPayload, CancellationToken cancellationToken = default)
         {
-            string response = await PostAsync(endpoint, jsonPayload);
+            string response = await PostAsync(endpoint, jsonPayload, cancellationToken);
             return JsonConvert.DeserializeObject<T>(response)
                 ?? throw new ServerAPIInvalidFormatException<T>(HttpVerb.Post, endpoint, response);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static async Task<T> PostAsync<T>(string endpoint, object payload)
+        public static async Task<T> PostAsync<T>(string endpoint, object payload, CancellationToken cancellationToken = default)
         {
-            return await PostAsync<T>(endpoint, JsonConvert.SerializeObject(payload));
+            return await PostAsync<T>(endpoint, JsonConvert.SerializeObject(payload), cancellationToken);
         }
 
-        private static async Task<bool> PreprocessRequest(UnityWebRequest request)
+        private static async Task<bool> PreprocessRequest(UnityWebRequest request, CancellationToken cancellationToken = default)
         {
             request.timeout = TIMEOUT;
             request.SetRequestHeader("Accept", "application/json");
-            return await PopulateSessionHeaders(request);
+            return await PopulateSessionHeaders(request, cancellationToken);
         }
 
-        public static async Task<bool> PopulateSessionHeaders(UnityWebRequest request)
+        public static async Task<bool> PopulateSessionHeaders(UnityWebRequest request, CancellationToken cancellationToken = default)
         {
             if (SessionManager.ShouldRefreshToken())
             {
-                await SessionManager.RefreshTokenAsync();
+                await SessionManager.RefreshTokenAsync(cancellationToken);
             }
 
             if (SessionManager.AuthToken != null)

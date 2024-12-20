@@ -163,7 +163,6 @@ TextField > * {
 
 .back-button {
     align-self: flex-start;
-    margin-bottom: 20px;
 }
 
 .exit-button {
@@ -234,7 +233,20 @@ TextField > * {
 .cancel-button {
 }
 
+.hidden {
+    display: none;
+}
+
 .confirm-button {
     background-color: rgb(117, 255, 154);
     margin-left: 48px;
+}
+
+.full-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    -unity-background-image-tint-color: rgb(0, 0, 0);
 }

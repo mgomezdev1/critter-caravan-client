@@ -1,18 +1,19 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI%20Toolkit/global.uss?fileID=7433441132597879392&amp;guid=7ba1cb99606c0df4f8a29b3c4d954bad&amp;type=3#global" />
     <Style src="project://database/Assets/UI%20Toolkit/levelSelector.uss?fileID=7433441132597879392&amp;guid=b513a09043da8aa48861eab429786b96&amp;type=3#levelSelector" />
-    <engine:VisualElement name="root" style="flex-grow: 1; flex-direction: column;">
-        <engine:VisualElement name="LevelBrowser" style="flex-grow: 1;">
-            <engine:Button text="Button" name="BackToMainButton" class="float-topleft back-button" />
+    <engine:VisualElement name="root" style="flex-grow: 1; flex-direction: column; background-image: url(&quot;project://database/Assets/TextMesh%20Pro/Examples%20&amp;%20Extras/Textures/Sunny%20Days%20-%20Seamless.jpg?fileID=2800000&amp;guid=17c350171f7a3ca479f830547c66d187&amp;type=3#Sunny Days - Seamless&quot;);">
+        <engine:VisualElement name="LevelBrowser" style="position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
+            <engine:Button text="Back" name="BackToMainButton" class="float-topleft back-button" />
         </engine:VisualElement>
-        <engine:VisualElement name="MainMenu" style="flex-grow: 1; position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
+        <engine:VisualElement name="MainMenu" class="hidden" style="flex-grow: 1; position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
+            <engine:VisualElement name="Title" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/UI%20Toolkit/Images/TitleProgrammerArt.png?fileID=2800000&amp;guid=582eeb0e0b9799b46aea023ead3ef8de&amp;type=3#TitleProgrammerArt&quot;); position: absolute; left: 10%; right: 10%; top: 10%; height: 35%; -unity-background-scale-mode: scale-to-fit;" />
             <engine:VisualElement name="GameButtons" class="spaced-col" style="flex-grow: 1; position: absolute; right: 10%; bottom: 15%; width: 500px;">
                 <engine:Button text="Play" name="PlayButton" />
                 <engine:Button text="Browse Levels" name="LevelBrowserButton" />
                 <engine:Button text="Level Editor" name="LevelEditorButton" />
                 <engine:Button text="Quit" name="QuitButton" class="exit-button" style="margin-top: 60px;" />
             </engine:VisualElement>
-            <engine:Button text="Log Out" name="LogOutButton" class="float-topleft exit-button" />
+            <engine:Button text="Log Out" name="LogOutButton" class="float-topleft exit-button" style="position: absolute;" />
         </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

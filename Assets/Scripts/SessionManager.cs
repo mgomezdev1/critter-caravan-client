@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 using Extensions;
+using System.Threading;
 
 #nullable enable
 public class SessionManager : PersistentSingletonBehaviour<SessionManager>
@@ -92,7 +93,7 @@ public class SessionManager : PersistentSingletonBehaviour<SessionManager>
         GetSession().SaveSync();
     }
 
-    public static async Task<SessionResponse?> RefreshTokenAsync()
+    public static async Task<SessionResponse?> RefreshTokenAsync(CancellationToken cancellationToken = default)
     {
         if (CurrentUser == null)
         {
@@ -101,7 +102,7 @@ public class SessionManager : PersistentSingletonBehaviour<SessionManager>
 
         try
         {
-            var response = await ServerAPI.PostAsync<SessionResponse>("auth/refresh", "{}");
+            var response = await ServerAPI.PostAsync<SessionResponse>("auth/refresh", "{}", cancellationToken);
             if (response.User == null || response.User != CurrentUser)
             {
                 Debug.LogWarning($"Received mismatched user in token refresh request from server: Expected {CurrentUser}, Got {response.User}.");

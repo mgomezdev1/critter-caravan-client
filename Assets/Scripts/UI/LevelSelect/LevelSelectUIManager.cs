@@ -37,6 +37,8 @@ public class LevelSelectUIManager : BaseUIManager
         quitButton.clicked += HandleQuit;
 
         levelBrowser = Q<LevelBrowser>();
+
+        SetActiveWindow(mainMenu);
     }
 
     private async void HandleLogOut()

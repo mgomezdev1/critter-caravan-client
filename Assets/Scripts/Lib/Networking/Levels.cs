@@ -3,8 +3,9 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
-using static Networking.ServerAPI;
 
 #nullable enable
 namespace Networking
@@ -52,7 +53,7 @@ namespace Networking
                     if (SortCriterion != default) segments.Add($"sort={SortCriterionToString(SortCriterion)}");
                     if (Author != default) segments.Add($"author={Author}");
                     if (Category != default) segments.Add($"category={Category}");
-                    if (PerPage != default) segments.Add($"per_page={PerPage}");
+                    if (PerPage > 0) segments.Add($"per_page={PerPage}");
                     if (MinVerificationLevel.HasValue) segments.Add($"min_verification={(int)MinVerificationLevel.Value}");
                     if (MaxVerificationLevel.HasValue) segments.Add($"max_verification={(int)MaxVerificationLevel.Value}");
 
@@ -64,7 +65,7 @@ namespace Networking
                 }
             }
 
-            public static async IAsyncEnumerable<ILevel> FetchLevels(QueryParams? queryParams = null)
+            public static async IAsyncEnumerable<ILevel> FetchLevels(QueryParams? queryParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
             {
                 var qParams = queryParams.HasValue ? queryParams.Value.ToString() : "";
                 var endpoint = $"/levels{qParams}";
@@ -72,6 +73,7 @@ namespace Networking
 
                 await foreach (var rawLevel in rawPages)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (rawLevel.ContainsKey("world"))
                     {
                         Level? levelResult = rawLevel.ToObject<Level>();
@@ -94,21 +96,24 @@ namespace Networking
             }
 
             public static readonly int LEVEL_FETCH_REQUEST_SIZE = 50;
-            public static async IAsyncEnumerable<LevelCompletionResult> FetchAllCompletions()
+            public static async IAsyncEnumerable<LevelCompletionResult> FetchAllCompletions([EnumeratorCancellation] CancellationToken cancellationToken = default)
             {
-                await foreach (var result in await InternalCompletionFetch("stats/levels"))
+                await foreach (var result in await InternalCompletionFetch("stats/levels", cancellationToken))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     result.MarkDownloaded();
                     yield return result;
                 }
             }
-            public static async IAsyncEnumerable<LevelCompletionResult> FetchCompletions(IEnumerable<string> levelIds)
+            public static async IAsyncEnumerable<LevelCompletionResult> FetchCompletions(IEnumerable<string> levelIds, [EnumeratorCancellation] CancellationToken cancellationToken = default)
             {
                 foreach (var idSet in levelIds.InSetsOf(LEVEL_FETCH_REQUEST_SIZE))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     string uri = GetLevelCompletionFetchUri(idSet);
-                    await foreach (var result in await InternalCompletionFetch(uri))
+                    await foreach (var result in await InternalCompletionFetch(uri, cancellationToken))
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
                         result.MarkDownloaded();
                         yield return result;
                     }
@@ -119,20 +124,20 @@ namespace Networking
             {
                 return $"stats/levels?{string.Join('&', levelIds.Select(s => $"levelId={s}"))}";
             }
-            private static async Task<Paginated<LevelCompletionResult>> InternalCompletionFetch(string uri)
+            private static async Task<Paginated<LevelCompletionResult>> InternalCompletionFetch(string uri, CancellationToken cancellationToken = default)
             {
-                return await GetAsync<Paginated<LevelCompletionResult>>(uri);
+                return await GetAsync<Paginated<LevelCompletionResult>>(uri, cancellationToken);
             }
 
-            public static async Task<LevelCompletionResult> UploadCompletion(LevelCompletionResult completion)
+            public static async Task<LevelCompletionResult> UploadCompletion(LevelCompletionResult completion, CancellationToken cancellationToken = default)
             {
-                var result = await PostAsync<LevelCompletionResult>($"stats/levels", completion);
+                var result = await PostAsync<LevelCompletionResult>($"stats/levels", completion, cancellationToken);
                 result.MarkDownloaded();
                 return result;
             }
-            public static async Task<IEnumerable<LevelCompletionResult>> UploadCompletions(IEnumerable<LevelCompletionResult> completions)
+            public static async Task<IEnumerable<LevelCompletionResult>> UploadCompletions(IEnumerable<LevelCompletionResult> completions, CancellationToken cancellationToken = default)
             {
-                var result = await PostAsync<LevelCompletionResult[]>($"stats/levels/bulk", completions.ToArray());
+                var result = await PostAsync<LevelCompletionResult[]>($"stats/levels/bulk", completions.ToArray(), cancellationToken);
                 DateTime downloadTime = DateTime.Now;
                 foreach (var item in result)
                 {
