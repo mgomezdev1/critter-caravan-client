@@ -1,8 +1,10 @@
 using Extensions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +12,43 @@ using System.Threading.Tasks;
 #nullable enable
 namespace Networking
 {
+    [JsonConverter(typeof(ILevel))]
+    public class LevelConverter : JsonConverter<ILevel>
+    {
+        public override ILevel? ReadJson(JsonReader reader, Type objectType, ILevel? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null)
+                return null;
+
+            // Parse the current object as a JToken
+            JToken value = JToken.ReadFrom(reader);
+            if (value is not JObject rawLevel)
+                throw new ServerAPIInvalidFormatException<ILevel>(HttpVerb.Get, "unknown endpoint", value.ToString());
+
+            if (rawLevel.ContainsKey("world"))
+            {
+                Level? levelResult = rawLevel.ToObject<Level>();
+                if (levelResult != null && levelResult.WorldData.obstacles != null)
+                {
+                    return levelResult;
+                }
+            }
+
+            AsyncLevel? asyncLevelResult = rawLevel.ToObject<AsyncLevel>();
+            if (asyncLevelResult != null && asyncLevelResult.LevelId != null)
+            {
+                return asyncLevelResult;
+            }
+
+            throw new ServerAPIInvalidFormatException<ILevel>(HttpVerb.Get, "unknown endpoint", rawLevel.ToString());
+        }
+
+        public override void WriteJson(JsonWriter writer, ILevel? value, JsonSerializer serializer)
+        {
+            serializer.Serialize(writer, value);
+        }
+    }
+
     public static partial class ServerAPI
     {
         public static class Levels
@@ -65,34 +104,12 @@ namespace Networking
                 }
             }
 
-            public static async IAsyncEnumerable<ILevel> FetchLevels(QueryParams? queryParams = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+            public static async Task<PaginatedCache<ILevel>> FetchLevels(QueryParams? queryParams = null, CancellationToken cancellationToken = default)
             {
                 var qParams = queryParams.HasValue ? queryParams.Value.ToString() : "";
                 var endpoint = $"/levels{qParams}";
-                var rawPages = await GetAsync<Paginated<JObject>>(endpoint);
-
-                await foreach (var rawLevel in rawPages)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    if (rawLevel.ContainsKey("world"))
-                    {
-                        Level? levelResult = rawLevel.ToObject<Level>();
-                        if (levelResult != null && levelResult.WorldData.obstacles != null)
-                        {
-                            yield return levelResult;
-                            continue;
-                        }
-                    }
-
-                    AsyncLevel? asyncLevelResult = rawLevel.ToObject<AsyncLevel>();
-                    if (asyncLevelResult != null && asyncLevelResult.LevelId != null)
-                    {
-                        yield return asyncLevelResult;
-                        continue;
-                    }
-
-                    throw new ServerAPIInvalidFormatException<ILevel>(HttpVerb.Get, endpoint, rawLevel.ToString());
-                }
+                var rawPages = await GetAsync<Paginated<ILevel>>(endpoint, cancellationToken);
+                return new PaginatedCache<ILevel>(rawPages);
             }
 
             public static readonly int LEVEL_FETCH_REQUEST_SIZE = 50;

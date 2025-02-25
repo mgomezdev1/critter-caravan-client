@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -90,13 +91,13 @@ namespace Networking
         [JsonProperty("verificationLevel")]
         public VerificationLevel VerificationLevel { get; set; }
 
-        public Task<WorldSaveData> FetchWorldData();
-        public Task<Sprite> GetThumbnail();
+        public Task<WorldSaveData> FetchWorldData(CancellationToken cancellationToken = default);
+        public Task<Sprite> GetThumbnail(CancellationToken cancellationToken = default);
 
-        public async Task<WorldSaveData> RefreshWorldData()
+        public async Task<WorldSaveData> RefreshWorldData(CancellationToken cancellationToken = default)
         {
             string levelId = LevelId;
-            var refreshedData = await ServerAPI.GetAsync<Level>($"levels/{levelId}");
+            var refreshedData = await ServerAPI.GetAsync<Level>($"levels/{levelId}", cancellationToken);
             Name = refreshedData.Name;
             Privacy = refreshedData.Privacy;
             Category = refreshedData.Category;
@@ -145,18 +146,18 @@ namespace Networking
         [JsonProperty("verificationLevel")]
         public VerificationLevel VerificationLevel { get; set; }
 
-        public Task<WorldSaveData> FetchWorldData()
+        public Task<WorldSaveData> FetchWorldData(CancellationToken cancellationToken = default)
         {
             return Task.FromResult(WorldData);
         }
 
-        public async Task<Sprite> GetThumbnail()
+        public async Task<Sprite> GetThumbnail(CancellationToken cancellationToken = default)
         {
             if (Thumbnail == null)
             {
                 return AssetManager.DefaultLevelThumbnail;
             }
-            return await AssetManager.GetSprite(Thumbnail);
+            return await AssetManager.GetSprite(Thumbnail, cancellationToken: cancellationToken);
         }
     }
 
@@ -200,22 +201,22 @@ namespace Networking
             VerificationLevel = verificationLevel;
         }
 
-        public async Task<WorldSaveData> FetchWorldData()
+        public async Task<WorldSaveData> FetchWorldData(CancellationToken cancellationToken = default)
         {
             if (CachedData.HasValue) { return CachedData.Value; }
 
-            CachedData = await ((ILevel)this).RefreshWorldData();
+            CachedData = await ((ILevel)this).RefreshWorldData(cancellationToken);
 
             return CachedData.Value;
         }
 
-        public async Task<Sprite> GetThumbnail()
+        public async Task<Sprite> GetThumbnail(CancellationToken cancellationToken)
         {
             if (Thumbnail == null)
             {
                 return AssetManager.DefaultLevelThumbnail;
             }
-            return await AssetManager.GetSprite(Thumbnail);
+            return await AssetManager.GetSprite(Thumbnail, cancellationToken: cancellationToken);
         }
     }
 

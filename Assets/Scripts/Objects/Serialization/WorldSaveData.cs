@@ -4,41 +4,32 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using MessagePack;
+using Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-public class WorldSaveDataConverter : JsonConverter
+#nullable enable
+[JsonConverter(typeof(WorldSaveData))]
+public class WorldSaveDataConverter : JsonConverter<WorldSaveData>
 {
-    public override bool CanConvert(Type objectType)
+    public override void WriteJson(JsonWriter writer, WorldSaveData value, JsonSerializer serializer)
     {
-        return objectType == typeof(WorldSaveData);
+        writer.WriteValue(value.Serialize(WorldManager.SerializationOptions));
     }
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override WorldSaveData ReadJson(JsonReader reader, Type objectType, WorldSaveData existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        if (value is WorldSaveData worldData)
+        JToken token = JToken.ReadFrom(reader);
+        string? content = token.Value<string>();
+        if (string.IsNullOrEmpty(content))
         {
-            writer.WriteValue(worldData.Serialize(WorldManager.SerializationOptions));
+            throw new ServerAPIInvalidFormatException<WorldSaveData>(HttpVerb.Get, "unknown endpoint", token.ToString());
         }
-        else
-        {
-            writer.WriteNull();
-        }
-    }
-
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-    {
-        string json = reader.Value as string;
-        if (!string.IsNullOrEmpty(json))
-        {
-            return WorldSaveData.Deserialize(json, out _);
-        }
-        return null;
+        return WorldSaveData.Deserialize(content, out _);
     }
 }
 
-#nullable enable
 [Serializable]
 public readonly struct WorldSerializationOptions
 {

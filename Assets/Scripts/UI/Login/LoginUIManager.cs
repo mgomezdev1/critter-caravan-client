@@ -165,9 +165,8 @@ public class LoginUIManager : BaseUIManager
         loginButton.SetEnabled(false);
         guestButton.SetEnabled(false);
 
-        await Task.WhenAll(sceneLoadTask, levelLoadTask);
+        Scene targetScene = await AsyncUtils.WhenAll(sceneLoadTask, levelLoadTask);
 
-        Scene targetScene = sceneLoadTask.Result;
         SceneManager.SetActiveScene(targetScene);
     }
 }

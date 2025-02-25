@@ -73,6 +73,110 @@ TextField > * {
     border-bottom-width: 0;
     border-left-width: 0;
     overflow: visible;
+    padding-top: 3px;
+    padding-right: 3px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+}
+
+DropdownField > * {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    overflow: visible;
+    margin-left: 0;
+    padding-top: 3px;
+    padding-right: 3px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+}
+
+Toggle #unity-checkmark {
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    width: 36px;
+    height: 36px;
+}
+
+ToggleField #toggle-handle {
+    position: absolute;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 12px;
+    height: 22px;
+    width: 22px;
+    background-color: rgb(137, 137, 137);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    transition-duration: 0.2s;
+    margin-top: 2px;
+    margin-right: 2px;
+    margin-bottom: 2px;
+    margin-left: 2px;
+    transform-origin: center;
+}
+
+ToggleField .field-input {
+    width: 50px;
+    height: 26px;
+    border-top-left-radius: 13px;
+    border-top-right-radius: 13px;
+    border-bottom-right-radius: 13px;
+    border-bottom-left-radius: 13px;
+    scale: 1 1;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+}
+
+ToggleField .field-input:hover {
+    background-color: rgb(200, 200, 200);
+}
+
+ToggleField .field-input:active {
+    background-color: rgb(180, 178, 178);
+}
+
+ToggleField .field-container {
+    height: 40px;
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 0;
+}
+
+ToggleField.toggled #toggle-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 100%;
+    translate: -100% 0;
+    margin-left: -2px;
+}
+
+ToggleField.toggled .field-input {
+    background-color: rgb(172, 224, 174);
+}
+
+ToggleField.toggled .field-input:hover {
+    background-color: rgb(157, 226, 164);
+}
+
+ToggleField.toggled .field-input:active {
+    background-color: rgb(126, 192, 132);
 }
 
 .minibutton {
@@ -136,6 +240,7 @@ TextField > * {
 .field-input {
     flex-grow: 1;
     height: 40px;
+    font-size: 20px;
 }
 
 .invalid .field-input {
@@ -147,10 +252,10 @@ TextField > * {
     border-right-width: 1px;
     border-bottom-width: 1px;
     border-left-width: 1px;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-bottom-left-radius: 4px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
 }
 
 .disabled {
@@ -249,4 +354,19 @@ TextField > * {
     bottom: 0;
     right: 0;
     -unity-background-image-tint-color: rgb(0, 0, 0);
+}
+
+.field-container {
+    flex-grow: 1;
+}
+
+.cover-fadetext-large {
+    -unity-text-align: middle-center;
+    font-size: 120px;
+    color: rgb(144, 144, 144);
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }

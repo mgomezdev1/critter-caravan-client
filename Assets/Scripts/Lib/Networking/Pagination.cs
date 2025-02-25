@@ -102,16 +102,15 @@ namespace Networking
 
         private int total;
         public int Total => total;
+        public int PageCount => (total - 1) / externalPageSize + 1;
 
         public readonly List<PageStore?> pageCache = new();
         private readonly List<string?> pageUrls = new();
 
         private int externalPageSize = 0;
-        public int PageSize { get => externalPageSize;
-            set
-            {
-                externalPageSize = value;
-            }
+        public int PageSize { 
+            get => externalPageSize;
+            set => externalPageSize = value;
         }
 
         public TimeSpan PageLifetime { get; set; } = TimeSpan.FromSeconds(60);

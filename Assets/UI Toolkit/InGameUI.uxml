@@ -87,7 +87,7 @@
                             <engine:VisualElement name="LevelNameStatusBad" style="flex-grow: 1; height: 100%; width: 60px; background-image: url(&quot;project://database/Assets/UI%20Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss?fileID=8228938214290033325&amp;guid=28ee427162c361e4c9de3a29022416fa&amp;type=3#console.erroricon&quot;);" />
                         </engine:VisualElement>
                     </engine:VisualElement>
-                    <engine:Label text="Your name sucks, change it" name="LevelNameError" class="field-error" style="-unity-text-align: upper-left; padding-left: 0; margin-left: 8px; margin-top: -2px;" />
+                    <engine:Label text="Invalid Level Name" name="LevelNameError" class="field-error" style="-unity-text-align: upper-left; padding-left: 0; margin-left: 8px; margin-top: -2px;" />
                 </engine:VisualElement>
                 <engine:VisualElement name="DataField" class="field" style="flex-grow: 1;">
                     <engine:Label text="Level Data" name="FieldLabel" class="field-label" style="-unity-text-align: upper-left;" />

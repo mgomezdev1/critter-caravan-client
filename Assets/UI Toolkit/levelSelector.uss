@@ -6,6 +6,7 @@
     top: 25px;
     left: 25px;
     align-self: flex-start;
+    position: absolute;
 }
 
 .local .hide-local {
@@ -18,4 +19,58 @@
 
 .editor .hide-editor {
     display: none;
+}
+
+.level-browser {
+    margin-top: 60px;
+    margin-bottom: 60px;
+    flex-grow: 1;
+}
+
+.page-button {
+    width: 50px;
+    height: 50px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+.level-columns {
+    flex-grow: 1;
+    justify-content: space-between;
+    align-content: stretch;
+}
+
+.level-display {
+    margin-right: 10px;
+    margin-left: 10px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.level-thumbnail {
+    -unity-background-scale-mode: scale-and-crop;
+    height: 200px;
+}
+
+.level-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(87, 87, 87, 0.75);
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-left: 2px;
+    color: rgb(255, 255, 255);
 }

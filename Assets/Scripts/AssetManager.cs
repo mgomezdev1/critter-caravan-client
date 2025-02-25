@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -15,6 +16,8 @@ public class AssetManager : PersistentSingletonBehaviour<AssetManager>
     public static Sprite DefaultLevelThumbnail => Instance.defaultLevelThumbnail;
     [SerializeField] private Sprite defaultUserThumbnail;
     public static Sprite DefaultUserThumbnail => Instance.defaultUserThumbnail;
+    [SerializeField] private Sprite defaultLevelPageBackground;
+    public static Sprite DefaultLevelPageBackground => Instance.defaultLevelPageBackground;
 
     protected override void Awake()
     {
@@ -47,10 +50,12 @@ public class AssetManager : PersistentSingletonBehaviour<AssetManager>
     /// </summary>
     /// <param name="uri">The URI to download from.</param>
     /// <returns>A task representing the downloaded content as a byte array.</returns>
-    public static async Task<byte[]> Download(string uri)
+    public static async Task<byte[]> Download(string uri, CancellationToken cancellationToken)
     {
         using HttpClient client = new();
-        return await client.GetByteArrayAsync(uri);
+        var response = await client.GetAsync(uri, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsByteArrayAsync();
     }
 
     /// <summary>
@@ -59,8 +64,9 @@ public class AssetManager : PersistentSingletonBehaviour<AssetManager>
     /// <param name="path">The path to the texture (local or remote URI).</param>
     /// <param name="allowCachedResult">Whether to use the cached result if available.</param>
     /// <param name="cacheNewResult">Whether to cache newly downloaded textures.</param>
+    /// <param name="cancellationToken">A cancellation token passed to downstream tasks.</param>
     /// <returns>A task representing the loaded Texture2D.</returns>
-    public static async Task<Texture2D> GetTexture2D(string path, bool allowCachedResult = true, bool cacheNewResult = true)
+    public static async Task<Texture2D> GetTexture2D(string path, bool allowCachedResult = true, bool cacheNewResult = true, CancellationToken cancellationToken = default)
     {
         // Check the cache
         if (allowCachedResult && textureCache.TryGetValue(path, out Texture2D cachedTexture))
@@ -77,12 +83,12 @@ public class AssetManager : PersistentSingletonBehaviour<AssetManager>
             if (!File.Exists(fullPath))
                 throw new FileNotFoundException($"Local file not found: {fullPath}");
 
-            textureData = await File.ReadAllBytesAsync(fullPath);
+            textureData = await File.ReadAllBytesAsync(fullPath, cancellationToken);
         }
         // Handle remote URIs
         else
         {
-            textureData = await Download(path);
+            textureData = await Download(path, cancellationToken);
         }
 
         // Create Texture2D from the data
@@ -101,7 +107,7 @@ public class AssetManager : PersistentSingletonBehaviour<AssetManager>
         return texture;
     }
 
-    public static async Task<Sprite> GetSprite(string path, bool allowCachedResult = true, bool cacheNewResult = true)
+    public static async Task<Sprite> GetSprite(string path, bool allowCachedResult = true, bool cacheNewResult = true, CancellationToken cancellationToken = default)
     {
         // Check the sprite cache first
         if (allowCachedResult && spriteCache.TryGetValue(path, out Sprite cachedSprite))
@@ -110,7 +116,7 @@ public class AssetManager : PersistentSingletonBehaviour<AssetManager>
         }
 
         // Get the Texture2D (this handles caching for textures)
-        Texture2D texture = await GetTexture2D(path, allowCachedResult, cacheNewResult);
+        Texture2D texture = await GetTexture2D(path, allowCachedResult, cacheNewResult, cancellationToken);
 
         // Create a new sprite
         Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));

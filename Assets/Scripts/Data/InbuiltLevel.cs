@@ -1,5 +1,6 @@
 using Networking;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -30,12 +31,12 @@ public class InbuiltLevel : ScriptableObject, ILevel
 
     [SerializeField] private Sprite previewSprite;
 
-    public Task<WorldSaveData> FetchWorldData()
+    public Task<WorldSaveData> FetchWorldData(CancellationToken cancellationToken = default)
     {
         return Task.FromResult(WorldSaveData.Deserialize(rawWorldData, out _));
     }
 
-    public Task<Sprite> GetThumbnail()
+    public Task<Sprite> GetThumbnail(CancellationToken cancellationToken = default)
     {
         return Task.FromResult(previewSprite);
     }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 104c20d05327d2641a883e4ecc5270b2, type: 3}
   m_Name: _Page 1
   m_EditorClassIdentifier: 
-  background: {fileID: 21300000, guid: 74abfcf4dec67564781cda7c010a059e, type: 3}
+  background: {fileID: 21300000, guid: 2ae654cbdf6905e44b18aedbad4d60a2, type: 3}
   levels:
   - {fileID: 11400000, guid: bebeb7f383a9f1142a2b10622802695a, type: 2}
   pageName: Intro

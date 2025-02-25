@@ -1,5 +1,8 @@
+using Extensions;
 using Networking;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using UnityEngine;
 
 #nullable enable
@@ -25,5 +28,10 @@ public class LevelCompendiumPage : ILevelCompendiumPage
             return $"Page {index + 1}/{total}";
         }
         return PageName;
+    }
+
+    public IAsyncEnumerable<ILevel> GetLevels(CancellationToken cancellationToken = default)
+    {
+        return levels.ToAsyncEnumerable();
     }
 }

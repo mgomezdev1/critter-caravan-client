@@ -1,6 +1,9 @@
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 public interface ILevelCompendium
 {
-    public IEnumerable<ILevelCompendiumPage> Pages { get; }
+    public Task<ILevelCompendiumPage> GetPage(int pageIndex, CancellationToken cancellationToken = default);
+    public int PageCount { get; }
 }
