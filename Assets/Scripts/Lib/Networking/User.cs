@@ -50,14 +50,14 @@ namespace Networking {
 
     public class UserLogin : IPayload<UserLogin>
     {
-        [JsonProperty(propertyName: "username")]
-        public string Username { get; set; }
+        [JsonProperty(propertyName: "email")]
+        public string Email { get; set; }
         [JsonProperty(propertyName: "password")]
         public string Password { get; set; }
 
-        public UserLogin(string username, string password)
+        public UserLogin(string email, string password)
         {
-            Username = username;
+            Email = email;
             Password = password;
         }
     }

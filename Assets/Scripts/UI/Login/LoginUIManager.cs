@@ -12,7 +12,7 @@ using UnityEngine.UIElements;
 #nullable enable
 public class LoginUIManager : BaseUIManager
 {
-    StringField UsernameField { get; set; }
+    StringField EmailField { get; set; }
     StringField PasswordField { get; set; }
     Label GlobalErrorLabel { get; set; }
 
@@ -25,11 +25,11 @@ public class LoginUIManager : BaseUIManager
     {
         _document = GetComponent<UIDocument>();
 
-        UsernameField = Q<StringField>("UsernameField");
+        EmailField = Q<StringField>("EmailField");
         PasswordField = Q<StringField>("PasswordField");
         GlobalErrorLabel = Q<Label>("GlobalErrorLabel");
 
-        UsernameField.OnSubmit += HandleLogin;
+        EmailField.OnSubmit += HandleLogin;
         PasswordField.OnSubmit += HandleLogin;
 
         foreach (var label in Query<Label>())
@@ -81,7 +81,7 @@ public class LoginUIManager : BaseUIManager
         if (loginInProgress) return;
         
         // gather credentials and hide global error.
-        UserLogin login = new(UsernameField.Value ?? string.Empty, PasswordField.Value ?? string.Empty);
+        UserLogin login = new(EmailField.Value ?? string.Empty, PasswordField.Value ?? string.Empty);
         SetErrorMessage(null);
 
         try
@@ -103,7 +103,7 @@ public class LoginUIManager : BaseUIManager
             if (formValidation != null)
             {
                 Dictionary<string, DataField> fields = new() {
-                    { "username", UsernameField },
+                    { "email", EmailField },
                     { "password", PasswordField }
                 };
                 ServerAPI.ShowServerFormErrors(formValidation, fields, GlobalErrorLabel);

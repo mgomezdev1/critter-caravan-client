@@ -107,7 +107,7 @@ namespace Networking
             public static async Task<PaginatedCache<ILevel>> FetchLevels(QueryParams? queryParams = null, CancellationToken cancellationToken = default)
             {
                 var qParams = queryParams.HasValue ? queryParams.Value.ToString() : "";
-                var endpoint = $"/levels{qParams}";
+                var endpoint = $"levels{qParams}";
                 var rawPages = await GetAsync<Paginated<ILevel>>(endpoint, cancellationToken);
                 return new PaginatedCache<ILevel>(rawPages);
             }

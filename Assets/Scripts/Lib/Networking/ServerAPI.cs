@@ -7,14 +7,15 @@ using UnityEngine;
 using UnityEngine.Networking;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Linq;
 
 #nullable enable
 namespace Networking
 {
     public static partial class ServerAPI
     {
-        public static string BASE_URL => Environment.GetEnvironmentVariable("BASE_URL") ?? "https://127.0.0.1/";
-        public static string BASE_URL_API => Environment.GetEnvironmentVariable("BASE_URL_API") ?? "https://127.0.0.1:4000/api/";
+        public static string BASE_URL => Environment.GetEnvironmentVariable("BASE_URL") ?? "http://127.0.0.1:8000/";
+        public static string BASE_URL_API => Environment.GetEnvironmentVariable("BASE_URL_API") ?? "http://127.0.0.1:8000/api/";
         public static int TIMEOUT { get; set; } = 5;
 
         public static async Task<string?> TryPostAsync(string endpoint, string jsonPayload, CancellationToken cancellationToken = default)
@@ -40,10 +41,13 @@ namespace Networking
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                return request.downloadHandler.text;
+                string response = request.downloadHandler.text;
+                Debug.Log($"{DateTime.Now}: POST api/{endpoint} -> {jsonPayload} ... {request.responseCode} -> {response}");
+                return response;
             }
             else
             {
+                Debug.LogError($"{DateTime.Now}: POST api/{endpoint} -> {jsonPayload} ... {request.responseCode}");
                 string? responseBody = request.downloadHandler?.text;
                 throw new ServerAPIException(HttpVerb.Post, endpoint, request.responseCode, request.error, responseBody);
             }
@@ -72,10 +76,13 @@ namespace Networking
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                return request.downloadHandler.text;
+                string response = request.downloadHandler.text;
+                Debug.Log($"{DateTime.Now}: GET api/{endpoint} ... {request.responseCode} -> {response}");
+                return response;
             }
             else
             {
+                Debug.LogError($"{DateTime.Now}: GET api/{endpoint} ... {request.responseCode}");
                 string? responseBody = request.downloadHandler?.text;
                 throw new ServerAPIException(HttpVerb.Get, endpoint, request.responseCode, request.error, responseBody);
             }
@@ -166,29 +173,39 @@ namespace Networking
                     globalErrorLabel.style.display = DisplayStyle.None;
                 }
             }
+            List<string> newErrors = new() { validationResult.Message };
             foreach (var fieldValidation in validationResult.Fields)
             {
-                if (fieldValidation.Value.Success) continue;
                 if (fields.TryGetValue(fieldValidation.Key, out var field))
                 {
-                    field.ErrorText = fieldValidation.Value.Error;
+                    field.ErrorText = string.Join(", ", fieldValidation.Value);
                     continue;
                 }
-                if (fieldValidation.Key == "global" || treatUnexpectedFieldNamesAsGlobal)
+
+                if (treatUnexpectedFieldNamesAsGlobal)
                 {
-                    if (globalErrorLabel == null)
-                    {
-                        Debug.LogWarning($"Received global error in field validation {fieldValidation.Value.Error}, but no global errors were expected.");
-                        continue;
-                    }
-                    string newGlobalText = globalErrorLabel.text;
-                    if (!string.IsNullOrEmpty(newGlobalText)) { newGlobalText += "<br>"; }
-                    newGlobalText += fieldValidation.Value.Error;
-                    globalErrorLabel.text = newGlobalText;
-                    // show label
-                    globalErrorLabel.style.display = DisplayStyle.Flex;
+                    newErrors.AddRange(fieldValidation.Value);
+                    continue;
+                    
                 }
                 throw new InternalServerAPIException($"Found unexpected field key \"{fieldValidation.Key}\" while showing validation error. Expected fields are {string.Join(", ", fields.Keys)}.");
+            }
+
+            foreach (var error in newErrors)
+            {
+                // show label
+                if (globalErrorLabel == null)
+                {
+                    Debug.LogWarning($"Received global error in field validation {error}, but no global errors were expected.");
+                    continue;
+                }
+                globalErrorLabel.style.display = DisplayStyle.Flex;
+
+                // add line to label
+                string newGlobalText = globalErrorLabel.text;
+                if (!string.IsNullOrEmpty(newGlobalText)) { newGlobalText += "<br>"; }
+                newGlobalText += error;
+                globalErrorLabel.text = newGlobalText;
             }
         }
     }

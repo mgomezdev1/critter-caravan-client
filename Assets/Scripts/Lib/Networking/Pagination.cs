@@ -34,9 +34,9 @@ namespace Networking
         [JsonProperty("path")]
         public string Path { get; set; }
         [JsonProperty("from")]
-        public int From { get; set; }
+        public int? From { get; set; }
         [JsonProperty("to")]
-        public int To { get; set; }
+        public int? To { get; set; }
 
         [JsonProperty("data")]
         public T[] Data { get; set; }
@@ -44,7 +44,7 @@ namespace Networking
         [JsonIgnore]
         public Paginated<T>? NextPage { get; protected set; } = null;
 
-        public Paginated(int total, int perPage, int currentPage, int pageCount, string firstPageUrl, string lastPageUrl, string? prevPageUrl, string? nextPageUrl, string path, int from, int to, T[] data)
+        public Paginated(int total, int perPage, int currentPage, int pageCount, string firstPageUrl, string lastPageUrl, string? prevPageUrl, string? nextPageUrl, string path, int? from, int? to, T[] data)
         {
             Total = total;
             PerPage = perPage;
@@ -155,7 +155,9 @@ namespace Networking
         }
         private void UpdatePageUrl(int pageNumber, string? url)
         {
-            if (url != null) return;
+            if (url == null) return;
+            if (pageNumber < 1) return;
+
             while (pageUrls.Count < pageNumber)
             {
                 pageUrls.Add(null);

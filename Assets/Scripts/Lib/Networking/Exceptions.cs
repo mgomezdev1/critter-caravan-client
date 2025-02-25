@@ -80,18 +80,10 @@ namespace Networking
     [Serializable]
     public class ServerAggregateValidationResult
     {
-        [JsonProperty("results")]
-        public Dictionary<string, ServerValidationResult> Fields { get; set; } = new();
-        [JsonProperty("success")]
-        public bool Success { get; set; }
-    }
-    [Serializable]
-    public class ServerValidationResult
-    {
-        [JsonProperty("error")]
-        public string Error { get; set; } = string.Empty;
-        [JsonProperty("success")]
-        public bool Success { get; set; }
+        [JsonProperty("errors")]
+        public Dictionary<string, string[]> Fields { get; set; } = new();
+        [JsonProperty("message")]
+        public string Message { get; set; } = string.Empty;
     }
 
     public enum HttpVerb

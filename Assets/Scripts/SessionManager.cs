@@ -66,7 +66,9 @@ public class SessionManager : PersistentSingletonBehaviour<SessionManager>
     public static async Task<SessionResponse> Login(UserLogin login)
     {
         string jsonPayload = JsonConvert.SerializeObject(login);
+        Debug.Log(jsonPayload);
         var response = await ServerAPI.PostAsync<SessionResponse>("auth/login", jsonPayload);
+        Debug.Log(response);
         await SetSession(response.User, response.Token, response.ExpirationDate);
 
         return response;
@@ -85,7 +87,7 @@ public class SessionManager : PersistentSingletonBehaviour<SessionManager>
 
     public static async Task LogOut()
     {
-        await ServerAPI.TryDeleteAsync("auth/login");
+        await ServerAPI.TryPostAsync("auth/logout", "");
         await ClearSession();
     }
     public void OnDestroy()
