@@ -3,7 +3,7 @@
     <engine:VisualElement name="root" style="flex-grow: 1;">
         <engine:VisualElement name="VisualElement" class="abs-center panel" style="flex-grow: 1; width: 560px; max-width: 80%; font-size: 20px; top: 540px; left: 981px;">
             <engine:VisualElement name="Title" style="flex-grow: 1; height: 160px; background-image: url(&quot;project://database/Assets/UI%20Toolkit/Images/TitleProgrammerArt.png?fileID=2800000&amp;guid=582eeb0e0b9799b46aea023ead3ef8de&amp;type=3#TitleProgrammerArt&quot;); -unity-background-scale-mode: scale-to-fit;" />
-            <StringField name="EmailField" label-text="Email" style="margin-right: 25%; margin-left: 25%;" />
+            <StringField name="EmailField" label-text="Username or Email" style="margin-right: 25%; margin-left: 25%;" />
             <StringField name="PasswordField" label-text="Password" hide-input="true" style="margin-right: 25%; margin-left: 25%;" />
             <engine:Label text="This is an example of an extremely long error label that could ostensibly be shown in this position with a bunch of extra json-formatted data {&quot;error&quot;: &quot;this is an example error that was sent from the server.&quot;}" name="GlobalErrorLabel" class="standalone-error" style="border-left-color: rgb(219, 123, 123); border-right-color: rgb(219, 123, 123); border-top-color: rgb(219, 123, 123); border-bottom-color: rgb(219, 123, 123); background-color: rgba(255, 177, 177, 0.5);" />
             <engine:Label text="&lt;style=&quot;link&quot;&gt;&lt;a href=&quot;%BASE_URL%forgot-password&quot;&gt;Forgot your password?&lt;/a&gt;&lt;/style&gt;" name="ForgotPassword" style="-unity-text-align: upper-center;" />
