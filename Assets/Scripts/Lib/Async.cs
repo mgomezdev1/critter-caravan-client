@@ -1,24 +1,38 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public static class AsyncUtils
 {
     public static Task<Scene> LoadSceneAsync(int buildIndex)
     {
-        Scene scene = SceneManager.GetSceneByBuildIndex(buildIndex);
-        if (scene.isLoaded) { return Task.FromResult(scene); }
+        Debug.Log($"Fetching scene with index {buildIndex}");
+        Scene targetScene = SceneManager.GetSceneByBuildIndex(buildIndex);
+        if (targetScene.isLoaded) {
+            Debug.Log($"Scene with index {buildIndex} is already loaded. Retrieving...");
+            return Task.FromResult(targetScene); 
+        }
 
         TaskCompletionSource<Scene> resolution = new();
 
         void HandleLoaded(Scene scene, LoadSceneMode mode)
         {
+            Debug.Log($"Scene {scene.buildIndex} loaded in mode {mode}");
+            if (targetScene.isLoaded) { 
+                resolution.SetResult(targetScene);
+                SceneManager.sceneLoaded -= HandleLoaded;
+                return;
+            }
+
             if (scene.buildIndex != buildIndex) return;
 
             resolution.SetResult(scene);
             SceneManager.sceneLoaded -= HandleLoaded;
         }
+
+        Debug.Log($"Loading scene {buildIndex}");
         SceneManager.sceneLoaded += HandleLoaded;
         SceneManager.LoadSceneAsync(buildIndex);
 

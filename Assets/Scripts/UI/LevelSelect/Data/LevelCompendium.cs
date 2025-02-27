@@ -7,7 +7,7 @@ using System.Threading;
 
 public class LevelCompendium : ILevelCompendium
 {
-    private readonly PaginatedCache<ILevel> pages;
+    private readonly IPaginator<ILevel> pages;
 
     public int PageCount => pages.PageCount;
 
@@ -18,8 +18,13 @@ public class LevelCompendium : ILevelCompendium
         return new LevelCompendiumPage(thumbnail, loadedPages);
     }
 
-    public LevelCompendium(PaginatedCache<ILevel> pages)
+    public LevelCompendium(IPaginator<ILevel> pages)
     {
         this.pages = pages;
+    }
+
+    public override string ToString()
+    {
+        return this.pages.ToString();
     }
 }

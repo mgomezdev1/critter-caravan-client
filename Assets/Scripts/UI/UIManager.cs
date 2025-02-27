@@ -1,8 +1,9 @@
+using Networking;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
+using System.Security.Authentication;
 using UnityEngine;
 using UnityEngine.UIElements;
 using static UnityEngine.InputSystem.InputAction;
@@ -56,6 +57,11 @@ public class UIManager : BaseUIManager
     ObstacleCompendiumView compendiumView;
     public ObstacleCompendiumView CompendiumView => compendiumView;
     private Brush activeBrush;
+
+    // Form elements
+    private StringField nameField;
+    private CheckboxField privacyField;
+    private Button publishButton;
 #pragma warning restore CS8618
 
     public ObstacleData? BrushObstacle {
@@ -128,6 +134,10 @@ public class UIManager : BaseUIManager
         messageDisplay = Q("MessageDisplay");
         messageDisplayLabel = messageDisplay.Q<Label>();
 
+        Button backButton = Q<Button>("BackButton");
+        backButton.clicked += async () => { await AsyncUtils.LoadSceneAsync(1); };
+
+        // LEVEL OPTIONS SECTION
         Window levelOptionsWindow = new Window(Q("LevelOptions")).Hide();
         Button levelOptionsButton = Q<Button>("LevelOptionsButton");
         Button levelOptionsBackButton = levelOptionsWindow.container.Q<Button>("BackButton");
@@ -135,6 +145,51 @@ public class UIManager : BaseUIManager
             .AddWindowButton(levelOptionsButton, WindowButtonBehaviour.Toggle)
             .AddWindowButton(levelOptionsBackButton, WindowButtonBehaviour.Close);
         levelOptionsWindow.OnOpen += RefreshWorldData;
+
+        nameField = Q<StringField>("NameField");
+        nameField.OnValueChanged += HandleNameChanged;
+        publishButton = Q<Button>("PublishButton");
+        publishButton.clicked += HandlePublish;
+        privacyField = Q<CheckboxField>("PrivacyField");
+        ShowWorldSettingsError("");
+    }
+
+    private void HandleNameChanged(string? newName)
+    {
+        if (string.IsNullOrEmpty(newName)) {
+            publishButton.SetEnabled(false);
+            nameField.ErrorText = "Level Name is Required";
+        }
+        publishButton.SetEnabled(true);
+        nameField.ErrorText = "";
+    }
+
+    private async void HandlePublish()
+    {
+        ShowWorldSettingsError("");
+        string name = nameField.Value ?? "Unnamed World";
+        bool privacy = privacyField.Value;
+        string thumbnail = Thumbnails.FromCamera(Camera.main);
+        string worldData = WorldManager.GetWorldDataString(WorldManager.World);
+        try
+        {
+            await ServerAPI.Levels.UploadLevel(worldData, name, privacy, thumbnail: thumbnail, category: "default");
+        }
+        catch (AuthenticationException)
+        {
+            ShowWorldSettingsError("You are not authenticated. Ensure you are logged in.");
+        }
+        catch (Exception ex)
+        {
+            ShowWorldSettingsError(ex.Message);
+            Debug.LogError(ex);
+        }
+    }
+    private void ShowWorldSettingsError(string message)
+    {
+        Label target = Q<Label>("WorldSettingsErrorLabel");
+        target.text = message;
+        target.style.display = string.IsNullOrEmpty(message) ? DisplayStyle.None : DisplayStyle.Flex;
     }
 
     private void Start()

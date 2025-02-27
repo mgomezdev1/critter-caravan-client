@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -163,7 +164,7 @@ namespace Networking
 
     public class AsyncLevel: IPayload<AsyncLevel>, ILevel
     {
-        [JsonProperty("levelId")]
+        [JsonProperty("id")]
         public string LevelId { get; set; }
 
         [JsonProperty("name")]
@@ -174,20 +175,34 @@ namespace Networking
         public string? Thumbnail { get; set; }
         [JsonProperty("category")]
         public string? Category { get; set; }
-        [JsonProperty("authorId")]
+        [JsonProperty("author_id")]
         public string AuthorId { get; set; }
-        [JsonProperty("uploadDate")]
+        [JsonProperty("created_at")]
         public DateTime Created { get; set; }
-        [JsonProperty("modifiedDate")]
+        [JsonProperty("updated_at")]
         public DateTime Updated { get; set; }
         [JsonProperty("reviews")]
         public ReviewData ReviewData { get; set; }
-        [JsonProperty("verificationLevel")]
+        [JsonProperty("verification_level")]
         public VerificationLevel VerificationLevel { get; set; }
+        [JsonProperty("world")]
+        public string? RawWorldData
+        {
+            get
+            {
+                if (CachedData == null) return null;
+                return CachedData.Value.Serialize(WorldManager.SerializationOptions);
+            }
+            set
+            {
+                if (value == null) { CachedData = null; return; }
+                CachedData = WorldSaveData.Deserialize(value, out _);
+            }
+        }
 
         protected WorldSaveData? CachedData { get; set; } = null;
 
-        public AsyncLevel(string levelId, string name, bool privacy, string? thumbnail, string? category, string authorId, DateTime created, DateTime updated, ReviewData reviewData, VerificationLevel verificationLevel)
+        public AsyncLevel(string levelId, string name, bool privacy, string? thumbnail, string? category, string authorId, DateTime created, DateTime updated, ReviewData reviewData, VerificationLevel verificationLevel, string? rawWorldData = null)
         {
             LevelId = levelId;
             Name = name;
@@ -199,6 +214,7 @@ namespace Networking
             Updated = updated;
             ReviewData = reviewData;
             VerificationLevel = verificationLevel;
+            RawWorldData = rawWorldData;
         }
 
         public async Task<WorldSaveData> FetchWorldData(CancellationToken cancellationToken = default)
@@ -217,6 +233,65 @@ namespace Networking
                 return AssetManager.DefaultLevelThumbnail;
             }
             return await AssetManager.GetSprite(Thumbnail, cancellationToken: cancellationToken);
+        }
+    }
+
+    public class LevelForUpload: IPayload<LevelForUpload>
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        [JsonProperty("world")]
+        public string RawData { get; set; }
+        [JsonProperty("private")]
+        public bool Privacy { get; set; }
+        [JsonProperty("category")]
+        public string Category { get; set; }
+        [JsonProperty("thumbnail")]
+        public string Thumbnail { get; set; }
+
+        public LevelForUpload(string name, string rawData, bool privacy, string? thumbnail = null, string? category = null)
+        {
+            Name = name;
+            Privacy = privacy;
+            Thumbnail = thumbnail ?? string.Empty;
+            Category = category ?? string.Empty;
+            RawData = rawData;
+        }
+    }
+
+    public class PaginatedLevels : Paginated<AsyncLevel>, IPayload<PaginatedLevels>, IPaginator<ILevel>
+    {
+        protected PaginatedCache<AsyncLevel> cache;
+
+        public PaginatedLevels(int total, int perPage, int currentPage, int pageCount, string firstPageUrl, string lastPageUrl, string? prevPageUrl, string? nextPageUrl, string path, int? from, int? to, AsyncLevel[] data) 
+            : base(total, perPage, currentPage, pageCount, firstPageUrl, lastPageUrl, prevPageUrl, nextPageUrl, path, from, to, data) 
+        {
+            cache = new(this);
+        }
+
+        public async Task<ILevel> FetchByIndex(int index, CancellationToken cancellationToken = default)
+        {
+            return await cache.FetchByIndex(index, cancellationToken: cancellationToken);
+        }
+
+        public async IAsyncEnumerable<ILevel> FetchPage(int pageIndex, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            await foreach (var value in cache.FetchPage(pageIndex, cancellationToken)) { yield return value; }
+        }
+
+        public void Invalidate()
+        {
+            cache.Invalidate();
+        }
+
+        IAsyncEnumerator<ILevel> IAsyncEnumerable<ILevel>.GetAsyncEnumerator(CancellationToken cancellationToken)
+        {
+            return GetAsyncEnumerator(cancellationToken);
+        }
+
+        public override string ToString()
+        {
+            return cache.ToString();
         }
     }
 

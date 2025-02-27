@@ -83,7 +83,7 @@ namespace Networking
         }
     }
 
-    public class PaginatedCache<T> : IAsyncEnumerable<T>
+    public class PaginatedCache<T> : IPaginator<T>
     {
         public class PageStore
         {
@@ -104,24 +104,26 @@ namespace Networking
         public int Total => total;
         public int PageCount => (total - 1) / externalPageSize + 1;
 
-        public readonly List<PageStore?> pageCache = new();
+        private readonly List<PageStore?> pageCache = new();
         private readonly List<string?> pageUrls = new();
 
-        private int externalPageSize = 0;
-        public int PageSize { 
+        private int externalPageSize = -1;
+        public int PerPage { 
             get => externalPageSize;
             set => externalPageSize = value;
         }
 
         public TimeSpan PageLifetime { get; set; } = TimeSpan.FromSeconds(60);
 
-        public PaginatedCache(Paginated<T> paginated)
+        public PaginatedCache(Paginated<T> paginated, int perPage = 9)
         {
+            PerPage = perPage;
             path = paginated.Path;
             LoadPaginator(paginated);
         }
-        public PaginatedCache(string path)
+        public PaginatedCache(string path, int perPage = 9)
         {
+            PerPage = perPage;
             this.path = path;
         }
 
@@ -212,7 +214,7 @@ namespace Networking
         public async IAsyncEnumerable<T> FetchPage(int pageIndex, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             int startIndex = pageIndex * externalPageSize;
-            for (int i = startIndex; i < (pageIndex + 1) * externalPageSize; i++)
+            for (int i = startIndex; i < (pageIndex + 1) * externalPageSize && i < total; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 yield return await FetchByIndex(i, cancellationToken);
@@ -220,6 +222,10 @@ namespace Networking
         }
         public async Task<T> FetchByIndex(int index, CancellationToken cancellationToken = default)
         {
+            if (index >= total)
+            {
+                throw new IndexOutOfRangeException($"The given index ({index}) may not exceed the total number of items in the paginator ({total})");
+            }
             int pageIndex = index / paginatorPageSize;
             PageStore store = await GetPage(pageIndex, cancellationToken);
             int inStoreIndex = index - pageIndex * paginatorPageSize;
@@ -235,5 +241,26 @@ namespace Networking
                 yield return await FetchByIndex(i++);
             }
         }
+
+        public override string ToString()
+        {
+            Dictionary<string, object> fields = new();
+            fields["total"] = Total;
+            fields["perPage"] = PerPage;
+            fields["pageCount"] = PageCount;
+            fields["pageCache"] = pageCache;
+            fields["urlCache"] = pageUrls;
+            return JsonConvert.SerializeObject(fields, Formatting.Indented);
+        }
+    }
+
+    public interface IPaginator<T> : IAsyncEnumerable<T>
+    {
+        public int PageCount { get; }
+
+        public void Invalidate();
+
+        public Task<T> FetchByIndex(int index, CancellationToken cancellationToken = default);
+        public IAsyncEnumerable<T> FetchPage(int pageIndex, CancellationToken cancellationToken = default);
     }
 }

@@ -104,12 +104,12 @@ namespace Networking
                 }
             }
 
-            public static async Task<PaginatedCache<ILevel>> FetchLevels(QueryParams? queryParams = null, CancellationToken cancellationToken = default)
+            public static async Task<IPaginator<ILevel>> FetchLevels(QueryParams? queryParams = null, CancellationToken cancellationToken = default)
             {
                 var qParams = queryParams.HasValue ? queryParams.Value.ToString() : "";
                 var endpoint = $"levels{qParams}";
-                var rawPages = await GetAsync<Paginated<ILevel>>(endpoint, cancellationToken);
-                return new PaginatedCache<ILevel>(rawPages);
+                var pages = await GetAsync<PaginatedLevels>(endpoint, cancellationToken);
+                return pages;
             }
 
             public static readonly int LEVEL_FETCH_REQUEST_SIZE = 50;
@@ -161,6 +161,12 @@ namespace Networking
                     item.MarkDownloaded(downloadTime);
                 }
                 return result;
+            }
+
+            public static async Task<Level> UploadLevel(string rawWorldData, string worldName, bool privacy, string? category = null, string? thumbnail = null, CancellationToken cancellationToken = default)
+            {
+                var level = new LevelForUpload(worldName, rawWorldData, privacy, thumbnail, category);
+                return await PostAsync<Level>("levels", level, cancellationToken);
             }
         }
     }

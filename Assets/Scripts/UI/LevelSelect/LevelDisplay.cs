@@ -2,6 +2,7 @@ using Networking;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 #nullable enable
@@ -21,6 +22,8 @@ public partial class LevelDisplay : Button
         ThumbnailHolder.AddToClassList("level-thumbnail");
         LevelNameLabel = new Label();
         LevelNameLabel.AddToClassList("level-name");
+
+        this.clicked += async () => { await Load(); };
 
         this.Add(ThumbnailHolder);
         this.Add(LevelNameLabel);
@@ -47,7 +50,7 @@ public partial class LevelDisplay : Button
 
         var levelData = await lastLoadedLevel.FetchWorldData();
         // Tell the scene manager to load this level
-        throw new NotImplementedException();
+        SceneHelper.LoadLevel(levelData);
         return levelData;
     }
 }

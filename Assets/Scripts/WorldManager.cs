@@ -3,11 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
-using static UnityEngine.InputSystem.InputAction;
 
 #nullable enable
 #pragma warning disable CS8618
@@ -20,7 +16,6 @@ public enum GameMode
 
 public class WorldManager : SingletonBehaviour<WorldManager>
 {
-
     [SerializeField] private CritterColor[] colors;
     [SerializeField] private UIManager ui;
     [SerializeField] private GridWorld activeWorld;
@@ -335,7 +330,10 @@ public class WorldManager : SingletonBehaviour<WorldManager>
 
     [Header("World Serialization")]
     [SerializeField] private WorldSerializationOptions serializationOptions = new(2, CompressionType.Base64Gzip);
-    public static WorldSerializationOptions SerializationOptions => Instance.serializationOptions;
+    public static WorldSerializationOptions SerializationOptions => 
+        Instance != null 
+            ? Instance.serializationOptions 
+            : new WorldSerializationOptions(2, CompressionType.Base64Gzip);
 
     [SerializeField] private AssetIdProvider idProvider;
 
@@ -362,8 +360,13 @@ public class WorldManager : SingletonBehaviour<WorldManager>
     {
         world.Clear();
         WorldSaveData worldData = WorldSaveData.Deserialize(data, out _);
-        world.SetSize(worldData.worldSize);
-        foreach (var obstacle in worldData.obstacles)
+        LoadWorldData(world, worldData);
+    }
+    public void LoadWorldData(GridWorld world, WorldSaveData data)
+    {
+        world.Clear();
+        world.SetSize(data.worldSize);
+        foreach (var obstacle in data.obstacles)
         {
             LoadObstacleData(world, obstacle);
         }

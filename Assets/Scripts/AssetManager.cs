@@ -85,9 +85,13 @@ public class AssetManager : PersistentSingletonBehaviour<AssetManager>
 
             textureData = await File.ReadAllBytesAsync(fullPath, cancellationToken);
         }
-        // Handle remote URIs
+        else if (Thumbnails.IsBase64Encoded(path, out string base64))
+        {
+            textureData = Thumbnails.GetBase64TextureBytes(base64);
+        }
         else
         {
+            // Handle remote URIs
             textureData = await Download(path, cancellationToken);
         }
 

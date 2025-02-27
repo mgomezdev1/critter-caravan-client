@@ -78,7 +78,11 @@
             </engine:VisualElement>
             <engine:VisualElement name="LevelOptions" class="abs-center panel" style="max-width: 600px; top: 541px; left: 960px;">
                 <engine:Button text="Back" name="BackButton" class="back-button" />
-                <engine:VisualElement name="NameField" class="field" style="flex-grow: 1;">
+                <engine:VisualElement style="flex-grow: 1; flex-direction: row;">
+                    <StringField label-text="Level Name" name="NameField" style="flex-grow: 1;" />
+                    <CheckboxField label-text="Private" name="PrivacyField" style="min-width: 89px; flex-direction: row-reverse;" />
+                </engine:VisualElement>
+                <engine:VisualElement name="OLD_NameField" class="field" style="flex-grow: 1; display: none;">
                     <engine:Label text="Level Name" name="LevelNameLabel" class="field-label" style="-unity-text-align: upper-left;" />
                     <engine:VisualElement name="LevelNameFieldRow" style="flex-grow: 1; min-width: 500px; flex-direction: row;">
                         <engine:TextField placeholder-text="your level name" name="LevelName" style="flex-grow: 1;" />
@@ -93,7 +97,7 @@
                     <engine:Label text="Level Data" name="FieldLabel" class="field-label" style="-unity-text-align: upper-left;" />
                     <engine:VisualElement name="FieldRow" style="flex-grow: 1; min-width: 500px; flex-direction: row;">
                         <engine:VisualElement name="InputFieldHolder" style="flex-grow: 1;">
-                            <engine:TextField placeholder-text="level data" name="InputField" style="flex-grow: 1; white-space: normal; position: absolute; left: 0; right: 0;" />
+                            <engine:TextField placeholder-text="level data" name="InputField" style="flex-grow: 1; white-space: normal; position: relative; left: 0; right: 0; max-height: 300px;" />
                         </engine:VisualElement>
                         <engine:VisualElement name="SaveLoad" style="flex-grow: 0; flex-direction: row; justify-content: center;">
                             <engine:Button text="Load" name="LoadLevelDataButton" />
@@ -101,11 +105,12 @@
                     </engine:VisualElement>
                     <engine:Label text="Unable to parse data" name="ErrorLabel" class="field-error" style="-unity-text-align: upper-left; padding-left: 0; margin-left: 8px; margin-top: -2px;" />
                 </engine:VisualElement>
-                <engine:Button text="Save" name="SaveButton" class="field" />
+                <engine:Button text="Save" name="SaveButton" class="field" style="display: none;" />
                 <engine:VisualElement name="PublishMenu" style="flex-grow: 1;">
                     <engine:Label text="The level is verified" name="LevelVerifiedLabel" class="mini-label hide-unverified" style="-unity-text-align: upper-center; height: 26px;" />
-                    <engine:Label text="You need to verify the level before you can publish" name="LevelNotVerifiedLabel" class="mini-label hide-verified" style="-unity-text-align: upper-center;" />
+                    <engine:Label text="You need to verify the level before you can publish" name="LevelNotVerifiedLabel" class="mini-label hide-verified" style="-unity-text-align: upper-center; display: none;" />
                     <engine:Button text="Publish Level" name="PublishButton" enabled="false" />
+                    <engine:Label text="Error Label" name="WorldSettingsErrorLabel" class="field-error" style="-unity-text-align: upper-center;" />
                 </engine:VisualElement>
             </engine:VisualElement>
             <engine:VisualElement name="MessageDisplay" class="abs-center panel" style="flex-direction: row; opacity: 0; max-width: 600px;">

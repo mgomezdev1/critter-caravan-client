@@ -1,5 +1,6 @@
 using Networking;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -100,12 +101,14 @@ public class LevelSelectUIManager : BaseUIManager
     {
         HandleShowSearchOptions(true);
         activeCompendium = new LevelCompendium(await ServerAPI.Levels.FetchLevels());
+        Debug.Log(activeCompendium);
         SetActiveWindow(levelBrowserWindow);
+        await LoadPage(0);
     }
     private void HandleOpenLevelEditor()
     {
-        HandleShowSearchOptions(true);
-        SetActiveWindow(levelBrowserWindow);
+        WorldSaveData data = new(new Vector2Int(16, 9), new List<ObstacleSaveData>());
+        SceneHelper.LoadLevel(data, GameMode.LevelEdit);
     }
 
     CancellationTokenSource? cancellationTokenSource = null;
