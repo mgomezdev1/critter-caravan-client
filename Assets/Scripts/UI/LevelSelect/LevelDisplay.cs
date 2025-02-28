@@ -1,8 +1,6 @@
 using Networking;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 #nullable enable
@@ -30,13 +28,6 @@ public partial class LevelDisplay : Button
     }
 
     public async Task SetLevel(ILevel level, CancellationToken cancellationToken)
-    {
-        lastLoadedLevel = level;
-        LevelNameLabel.text = level.Name;
-        var levelGraphic = await level.GetThumbnail(cancellationToken);
-        ThumbnailHolder.style.backgroundImage = new StyleBackground(levelGraphic);
-    }
-    public async Task SetLevelThreadSafe(ILevel level, CancellationToken cancellationToken)
     {
         lastLoadedLevel = level;
         LevelNameLabel.text = level.Name;

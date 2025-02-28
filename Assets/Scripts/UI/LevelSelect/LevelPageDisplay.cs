@@ -25,15 +25,17 @@ public partial class LevelPageDisplay : VisualElement
     public ILevelCompendiumPage? CurrentPage => lastLoadedPage;
     private ILevelCompendiumPage? lastLoadedPage;
 
-    readonly ScrollView columnHolder;
+    readonly VisualElement columnHolder;
     readonly VisualElement noResultsIndicator;
     readonly List<LevelDisplay> displays = new();
 
     public LevelPageDisplay()
     {
+        ScrollView scroller = new();
         columnHolder = new();
         columnHolder.AddToClassList("level-columns");
-        Add(columnHolder);
+        scroller.Add(columnHolder);
+        Add(scroller);
 
         noResultsIndicator = new Label() { text = "No Results"};
         noResultsIndicator.AddToClassList("cover-fadetext-large");

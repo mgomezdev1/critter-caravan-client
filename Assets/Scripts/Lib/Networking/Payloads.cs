@@ -66,7 +66,7 @@ namespace Networking
         Unverified = 0,
         Verified = 1,
         Ranked = 2,
-        Spotlight = 3,
+        Featured = 3,
         Official = 4
     }
 

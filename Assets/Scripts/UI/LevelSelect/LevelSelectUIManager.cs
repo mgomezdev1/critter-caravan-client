@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
+using static Networking.ServerAPI.Levels;
+
 #nullable enable
 public class LevelSelectUIManager : BaseUIManager
 {
@@ -65,6 +67,9 @@ public class LevelSelectUIManager : BaseUIManager
 
         activeCompendium = inbuiltLevels;
 
+        Button searchButton = Q<Button>("SearchButton");
+        searchButton.clicked += HandleSearch;
+
         SetActiveWindow(mainMenu);
     }
 
@@ -101,7 +106,6 @@ public class LevelSelectUIManager : BaseUIManager
     {
         HandleShowSearchOptions(true);
         activeCompendium = new LevelCompendium(await ServerAPI.Levels.FetchLevels());
-        Debug.Log(activeCompendium);
         SetActiveWindow(levelBrowserWindow);
         await LoadPage(0);
     }
@@ -109,6 +113,23 @@ public class LevelSelectUIManager : BaseUIManager
     {
         WorldSaveData data = new(new Vector2Int(16, 9), new List<ObstacleSaveData>());
         SceneHelper.LoadLevel(data, GameMode.LevelEdit);
+    }
+
+    private async void HandleSearch()
+    {
+        LevelFetchQParams queryParameters = new()
+        {
+            Author = Q<StringField>("AuthorNameFilter").Value,
+            LevelName = Q<StringField>("LevelNameFilter").Value,
+            Category = Q<StringField>("CategoryFilter").Value,
+            MinVerificationLevel = Q<VerificationLevelDropdown>("MinVerificationLevelSelector").Value,
+            MaxVerificationLevel = Q<VerificationLevelDropdown>("MaxVerificationLevelSelector").Value,
+            SortCriterion = Q<SortCriterionDropdown>().Value,
+            SortAscending = Q<ToggleField>("SortAscendingToggle").Value
+        };
+
+        activeCompendium = new LevelCompendium(await FetchLevels(queryParameters));
+        await LoadPage(0);
     }
 
     CancellationTokenSource? cancellationTokenSource = null;
@@ -158,10 +179,10 @@ public class LevelSelectUIManager : BaseUIManager
     }
     public void UpdatePageButtonStates(int pageIdx, int pageCount)
     {
-        firstPageBtn.SetEnabled(pageIdx != 0);
-        prevPageBtn.SetEnabled(pageIdx != 0);
-        lastPageBtn.SetEnabled(pageIdx + 1 < pageCount);
-        nextPageBtn.SetEnabled(pageIdx + 1 < pageCount);
+        firstPageBtn.SetEnabled(pageIdx > 0);
+        prevPageBtn.SetEnabled(pageIdx > 0);
+        lastPageBtn.SetEnabled(pageIdx < pageCount - 1);
+        nextPageBtn.SetEnabled(pageIdx < pageCount - 1);
     }
 
     public void HandleShowSearchOptions(bool showSearchOptions)

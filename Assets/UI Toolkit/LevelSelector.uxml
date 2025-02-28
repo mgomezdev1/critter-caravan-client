@@ -4,17 +4,28 @@
     <engine:VisualElement name="root" style="flex-grow: 1; flex-direction: column; background-image: url(&quot;project://database/Assets/TextMesh%20Pro/Examples%20&amp;%20Extras/Textures/Sunny%20Days%20-%20Seamless.jpg?fileID=2800000&amp;guid=17c350171f7a3ca479f830547c66d187&amp;type=3#Sunny Days - Seamless&quot;);">
         <engine:VisualElement name="LevelBrowser" style="position: absolute; top: 0; left: 0; bottom: 0; right: 0;">
             <engine:Button text="Back" name="BackToMainButton" class="float-topleft back-button" />
-            <engine:VisualElement name="MainContainer" style="flex-grow: 1; max-width: 1200px; position: absolute; left: 50%; width: 85%; translate: -50% 0; margin-top: 5%; margin-bottom: 5%; top: 0; bottom: 0; margin-right: 0; margin-left: 0; justify-content: center; align-items: center;">
-                <engine:VisualElement name="SearchOptions" class="panel" style="flex-grow: 0; flex-direction: row; max-width: 800px; width: 100%;">
+            <engine:VisualElement name="MainContainer" style="flex-grow: 1; max-width: 1200px; position: absolute; left: 50%; width: 85%; translate: -50% 0; margin-top: 2%; margin-bottom: 2%; top: 0; bottom: 0; margin-right: 0; margin-left: 0; justify-content: center; align-items: center;">
+                <engine:VisualElement name="SearchOptions" class="panel" style="flex-grow: 0; flex-direction: row; max-width: 800px; width: 100%; flex-shrink: 0;">
                     <engine:VisualElement name="Controls" style="flex-grow: 1; flex-direction: column;">
                         <engine:VisualElement name="SortOptions" style="flex-grow: 1; flex-direction: row;">
                             <SortCriterionDropdown label-text="Sort By:" style="flex-grow: 1;" />
-                            <ToggleField label-text="Sort Ascending" style="flex-grow: 0; width: 128px; align-self: stretch; justify-content: space-between; align-items: stretch;" />
+                            <ToggleField label-text="Sort Ascending" name="SortAscendingToggle" style="flex-grow: 0; width: 128px; align-self: stretch; justify-content: space-between; align-items: stretch;" />
                         </engine:VisualElement>
                         <engine:VisualElement name="VerificationOptions" style="flex-grow: 1; flex-direction: row;" />
-                        <engine:VisualElement name="StringFilters" style="flex-grow: 1; flex-direction: row;">
-                            <StringField name="LevelNameFilter" label-text="Level Name" style="flex-grow: 1; margin-right: 70px;" />
-                            <StringField name="AuthorNameField" label-text="Author Name" style="flex-grow: 1;" />
+                        <engine:VisualElement name="FilterRow1" style="flex-grow: 1; flex-direction: row;">
+                            <StringField name="LevelNameFilter" label-text="Level Name" style="flex-grow: 1; margin-right: 70px; flex-shrink: 0;" />
+                            <StringField name="AuthorNameFilter" label-text="Author Name" style="flex-grow: 1; flex-shrink: 0;" />
+                        </engine:VisualElement>
+                        <engine:VisualElement name="FilterRow2" style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
+                            <StringField name="CategoryFilter" label-text="Category" style="flex-grow: 1; margin-right: 70px; flex-shrink: 0;" />
+                            <engine:VisualElement name="VerificationLevel" style="flex-grow: 0; flex-direction: column; flex-shrink: 0;">
+                                <engine:Label text="Verification Level" name="VerificationLevelLabel" class="field-label" />
+                                <engine:VisualElement style="flex-grow: 0; flex-direction: row; align-items: auto; flex-shrink: 0; width: auto;">
+                                    <VerificationLevelDropdown name="MinVerificationLevelSelector" style="flex-grow: 1; max-width: 170px; min-width: 170px;" />
+                                    <engine:Label text="-" name="Dash" style="font-size: 28px;" />
+                                    <VerificationLevelDropdown name="MaxVerificationLevelSelector" style="flex-grow: 1; max-width: 170px; min-width: 170px;" />
+                                </engine:VisualElement>
+                            </engine:VisualElement>
                         </engine:VisualElement>
                     </engine:VisualElement>
                     <engine:VisualElement name="SearchCol" style="flex-grow: 0; justify-content: center; margin-left: 20px;">
@@ -40,7 +51,7 @@
                         </engine:VisualElement>
                     </engine:VisualElement>
                 </LevelPageDisplay>
-                <engine:VisualElement name="PageSwatch" class="panel" style="flex-grow: 0; flex-direction: row; justify-content: space-between; min-width: 600px;">
+                <engine:VisualElement name="PageSwatch" class="panel" style="flex-grow: 0; flex-direction: row; justify-content: space-between; min-width: 600px; flex-shrink: 0;">
                     <engine:VisualElement name="BackButtonSet" style="flex-grow: 1; flex-direction: row;">
                         <engine:Button icon-image="project://database/Assets/UI%20Toolkit/Images/Speed/Fast.png?fileID=2800000&amp;guid=c3a0c9f9d68dd9541a1378bc6e8497da&amp;type=3#Fast" name="FirstPageButton" class="page-button" style="scale: -1 1;" />
                         <engine:Button icon-image="project://database/Assets/UI%20Toolkit/Images/Speed/Play.png?fileID=2800000&amp;guid=867b85fa0baccff44bc698992601087f&amp;type=3#Play" name="PrevPageButton" class="page-button" style="scale: -1 1;" />

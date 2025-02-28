@@ -3,18 +3,7 @@
     <Style src="project://database/Assets/UI%20Toolkit/gameUI.uss?fileID=7433441132597879392&amp;guid=68e4d41cb0d4845449153c03fbaba48e&amp;type=3#gameUI" />
     <engine:VisualElement name="root" class="root" style="flex-grow: 1;">
         <engine:VisualElement name="Fallthrough" class="fallthrough" style="flex-grow: 1;">
-            <engine:VisualElement style="flex-grow: 1;" />
-        </engine:VisualElement>
-        <engine:VisualElement name="container" picking-mode="Ignore" style="flex-grow: 1; justify-content: space-between; flex-direction: column; align-items: stretch;">
-            <engine:VisualElement name="TopBar" picking-mode="Ignore" style="flex-grow: 0; align-self: stretch; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; flex-direction: column;">
-                <engine:VisualElement name="EditMenu" class="hide-play hide-setup" style="flex-grow: 1; flex-direction: row; align-items: center; justify-content: center;">
-                    <engine:Button text="Test Level" name="EditToSetupButton" />
-                    <engine:Button text="Level Options" name="LevelOptionsButton" />
-                </engine:VisualElement>
-                <engine:VisualElement name="SetupMenu" picking-mode="Ignore" class="hide-play hide-edit" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: center;">
-                    <engine:Button text="Edit Level" name="EditButton" class="button" />
-                    <engine:Button text="Play" name="PlayButton" class="button" />
-                </engine:VisualElement>
+            <engine:VisualElement style="flex-grow: 1;">
                 <engine:VisualElement name="PlayMenu" picking-mode="Ignore" class="hide-edit hide-setup" style="flex-grow: 1; align-items: center; flex-direction: column; justify-content: center;">
                     <engine:Button text="Back to Setup" name="PlayToSetupButton" class="button" />
                     <engine:VisualElement name="SpeedSettings" style="flex-grow: 0; margin-right: 45px; margin-left: 45px; height: 50px; flex-direction: row;">
@@ -44,6 +33,18 @@
                             </Bindings>
                         </engine:Button>
                     </engine:VisualElement>
+                </engine:VisualElement>
+            </engine:VisualElement>
+        </engine:VisualElement>
+        <engine:VisualElement name="container" picking-mode="Ignore" style="flex-grow: 1; justify-content: space-between; flex-direction: column; align-items: stretch;">
+            <engine:VisualElement name="TopBar" picking-mode="Ignore" style="flex-grow: 0; align-self: stretch; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; flex-direction: column;">
+                <engine:VisualElement name="EditMenu" class="hide-play hide-setup" style="flex-grow: 1; flex-direction: row; align-items: center; justify-content: center;">
+                    <engine:Button text="Test Level" name="EditToSetupButton" />
+                    <engine:Button text="Level Options" name="LevelOptionsButton" />
+                </engine:VisualElement>
+                <engine:VisualElement name="SetupMenu" picking-mode="Ignore" class="hide-play hide-edit" style="flex-grow: 1; align-items: center; flex-direction: row; justify-content: center;">
+                    <engine:Button text="Edit Level" name="EditButton" class="button" />
+                    <engine:Button text="Play" name="PlayButton" class="button" />
                 </engine:VisualElement>
             </engine:VisualElement>
             <engine:VisualElement name="TilePicker" class="collapsable hide-play hide-setup" style="flex-grow: 0;">

@@ -208,7 +208,7 @@ namespace Networking
             PageStore? cacheResult = TryGetPageFromCache(pageIndex);
             if (cacheResult != null) return cacheResult;
             string? pageUrl = GetPageUrl(pageIndex);
-            var pageData = await ServerAPI.GetAsync<Paginated<T>>(pageUrl, cancellationToken);
+            var pageData = await ServerAPI.GetAsync<Paginated<T>>(pageUrl, cancellationToken, includeBaseUrl: false);
             return LoadPaginator(pageData);
         }
         public async IAsyncEnumerable<T> FetchPage(int pageIndex, [EnumeratorCancellation] CancellationToken cancellationToken = default)

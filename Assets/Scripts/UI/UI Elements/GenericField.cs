@@ -8,6 +8,7 @@ using static Utils.GenericUtils;
 using JetBrains.Annotations;
 using static Networking.ServerAPI.Levels;
 using Utils;
+using Networking;
 
 #nullable enable
 [UxmlElement]
@@ -436,6 +437,8 @@ public partial class EnumDropdown<T> : DropdownField<T> where T : Enum
 
 [UxmlElement]
 public partial class SortCriterionDropdown : EnumDropdown<SortCriterion> { }
+[UxmlElement]
+public partial class VerificationLevelDropdown : EnumDropdown<VerificationLevel> { }
 
 [UxmlElement]
 public partial class StringField : TextGenericField<string>

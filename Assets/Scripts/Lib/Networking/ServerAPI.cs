@@ -18,11 +18,11 @@ namespace Networking
         public static string BASE_URL_API => Environment.GetEnvironmentVariable("BASE_URL_API") ?? "http://127.0.0.1:8000/api/";
         public static int TIMEOUT { get; set; } = 5;
 
-        public static async Task<string?> TryPostAsync(string endpoint, string jsonPayload, CancellationToken cancellationToken = default)
+        public static async Task<string?> TryPostAsync(string endpoint, string jsonPayload, CancellationToken cancellationToken = default, bool includeBaseUrl = true)
         {
             try
             {
-                return await PostAsync(endpoint, jsonPayload, cancellationToken);
+                return await PostAsync(endpoint, jsonPayload, cancellationToken, includeBaseUrl);
             }
             catch
             {
@@ -30,9 +30,10 @@ namespace Networking
             }
         }
 
-        public static async Task<string> PostAsync(string endpoint, string jsonPayload, CancellationToken cancellationToken = default)
+        public static async Task<string> PostAsync(string endpoint, string jsonPayload, CancellationToken cancellationToken = default, bool includeBaseUrl = true)
         {
-            using UnityWebRequest request = UnityWebRequest.Post(BASE_URL_API + endpoint, jsonPayload, "application/json");
+            string url = includeBaseUrl ? BASE_URL_API + endpoint : endpoint;
+            using UnityWebRequest request = UnityWebRequest.Post(url, jsonPayload, "application/json");
             await PreprocessRequest(request);
 
             cancellationToken.Register(() => request.Abort());
@@ -53,11 +54,11 @@ namespace Networking
             }
         }
 
-        public static async Task<string?> TryGetAsync(string endpoint, CancellationToken cancellationToken = default)
+        public static async Task<string?> TryGetAsync(string endpoint, CancellationToken cancellationToken = default, bool includeBaseUrl = true)
         {
             try
             {
-                return await GetAsync(endpoint, cancellationToken);
+                return await GetAsync(endpoint, cancellationToken, includeBaseUrl);
             }
             catch
             {
@@ -65,9 +66,10 @@ namespace Networking
             }
         }
 
-        public static async Task<string> GetAsync(string endpoint, CancellationToken cancellationToken = default)
+        public static async Task<string> GetAsync(string endpoint, CancellationToken cancellationToken = default, bool includeBaseUrl = true)
         {
-            using UnityWebRequest request = UnityWebRequest.Get(BASE_URL_API + endpoint);
+            string url = includeBaseUrl ? BASE_URL_API + endpoint : endpoint;
+            using UnityWebRequest request = UnityWebRequest.Get(url);
             await PreprocessRequest(request);
 
             cancellationToken.Register(() => request.Abort());
@@ -119,22 +121,22 @@ namespace Networking
             }
         }
 
-        public static async Task<T> GetAsync<T>(string endpoint, CancellationToken cancellationToken = default)
+        public static async Task<T> GetAsync<T>(string endpoint, CancellationToken cancellationToken = default, bool includeBaseUrl = true)
         {
-            string response = await GetAsync(endpoint, cancellationToken);
+            string response = await GetAsync(endpoint, cancellationToken, includeBaseUrl);
             return JsonConvert.DeserializeObject<T>(response)
                 ?? throw new ServerAPIInvalidFormatException<T>(HttpVerb.Get, endpoint, response);
         }
-        public static async Task<T> PostAsync<T>(string endpoint, string jsonPayload, CancellationToken cancellationToken = default)
+        public static async Task<T> PostAsync<T>(string endpoint, string jsonPayload, CancellationToken cancellationToken = default, bool includeBaseUrl = true)
         {
-            string response = await PostAsync(endpoint, jsonPayload, cancellationToken);
+            string response = await PostAsync(endpoint, jsonPayload, cancellationToken, includeBaseUrl);
             return JsonConvert.DeserializeObject<T>(response)
                 ?? throw new ServerAPIInvalidFormatException<T>(HttpVerb.Post, endpoint, response);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static async Task<T> PostAsync<T>(string endpoint, object payload, CancellationToken cancellationToken = default)
+        public static async Task<T> PostAsync<T>(string endpoint, object payload, CancellationToken cancellationToken = default, bool includeBaseUrl = true)
         {
-            return await PostAsync<T>(endpoint, JsonConvert.SerializeObject(payload), cancellationToken);
+            return await PostAsync<T>(endpoint, JsonConvert.SerializeObject(payload), cancellationToken, includeBaseUrl);
         }
 
         private static async Task<bool> PreprocessRequest(UnityWebRequest request, CancellationToken cancellationToken = default)

@@ -74,9 +74,10 @@ namespace Networking
                 };
             }
 
-            public struct QueryParams
+            public struct LevelFetchQParams
             {
                 public int PerPage { get; set; }
+                public string? LevelName { get; set; }
                 public string? Category { get; set; }
                 public string? Author { get; set; }
                 public bool SortAscending { get; set; }
@@ -86,29 +87,29 @@ namespace Networking
 
                 public override readonly string ToString()
                 {
-                    List<string> segments = new();
+                    List<string> segments = new()
+                    {
+                        $"per_page={(PerPage > 0 && PerPage <= 50 ? PerPage : 10)}"
+                    };
 
                     if (SortAscending != default) segments.Add("sort_asc=true");
                     if (SortCriterion != default) segments.Add($"sort={SortCriterionToString(SortCriterion)}");
-                    if (Author != default) segments.Add($"author={Author}");
-                    if (Category != default) segments.Add($"category={Category}");
-                    if (PerPage > 0) segments.Add($"per_page={PerPage}");
+                    if (!string.IsNullOrEmpty(LevelName)) segments.Add($"name={LevelName}");
+                    if (!string.IsNullOrEmpty(Author)) segments.Add($"author={Author}");
+                    if (!string.IsNullOrEmpty(Category)) segments.Add($"category={Category}");
                     if (MinVerificationLevel.HasValue) segments.Add($"min_verification={(int)MinVerificationLevel.Value}");
                     if (MaxVerificationLevel.HasValue) segments.Add($"max_verification={(int)MaxVerificationLevel.Value}");
 
-                    if (segments.Count == 0)
-                    {
-                        return "";
-                    }
                     return $"?{string.Join('&', segments)}";
                 }
             }
 
-            public static async Task<IPaginator<ILevel>> FetchLevels(QueryParams? queryParams = null, CancellationToken cancellationToken = default)
+            public static async Task<IPaginator<ILevel>> FetchLevels(LevelFetchQParams? queryParams = null, CancellationToken cancellationToken = default)
             {
-                var qParams = queryParams.HasValue ? queryParams.Value.ToString() : "";
+                var qParams = queryParams.HasValue ? queryParams.Value : new LevelFetchQParams();
                 var endpoint = $"levels{qParams}";
                 var pages = await GetAsync<PaginatedLevels>(endpoint, cancellationToken);
+                pages.PerPage = 9;
                 return pages;
             }
 
